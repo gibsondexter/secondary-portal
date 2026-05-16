@@ -284,9 +284,13 @@ return null;
 
 let student = snap.docs[0].data();
 
-let fee = Number(student.term_fee || 0);
-let paid = Number(student.total_paid || 0);
-let balance = fee - paid;
+let selectedTerm = document.getElementById("termFilter").value;
+
+let feeData = student.fees?.[selectedTerm] || {};
+
+let fee = feeData.fee || 0;
+let paid = feeData.paid || 0;
+let balance = feeData.balance || (fee - paid);
 
 document.getElementById("fees").innerHTML = `
 <h3>💰 Fees Summary</h3>
