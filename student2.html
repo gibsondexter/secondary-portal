@@ -1,75 +1,159 @@
-<!DOCTYPE html>
-<html>
 <head>
+
 <title>Student Dashboard</title>
 
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <style>
-body{
-    font-family: Arial;
-    background:#f4f6f9;
+
+*{
     margin:0;
     padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
 }
 
-.container{
-    width:95%;
-    max-width:550px;
-    margin:auto;
+html,body{
+    width:100%;
+    overflow-x:hidden;
+}
+
+body{
+    background:#eef2f7;
+    color:#111827;
     padding:10px;
 }
 
-.box{
-    background:white;
-    padding:15px;
-    margin:10px 0;
-    border-radius:12px;
-    box-shadow:0 0 10px rgba(0,0,0,0.08);
+/* CONTAINER */
+
+.container{
+    width:100%;
+    max-width:550px;
+    margin:auto;
 }
 
-h2,h3{margin:6px 0;}
+/* BOXES */
+
+.box{
+    width:100%;
+    background:white;
+    padding:16px;
+    margin-bottom:16px;
+    border-radius:18px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* HEADINGS */
+
+h2{
+    text-align:center;
+    color:#2563eb;
+    margin-bottom:12px;
+    font-size:22px;
+}
+
+h3{
+    margin-bottom:12px;
+    color:#111827;
+    font-size:17px;
+}
+
+/* SCHOOL HEADER */
+
+#schoolHeader{
+    text-align:center;
+    font-weight:bold;
+    font-size:14px;
+    line-height:1.7;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:white;
+}
+
+/* SCHOOL NAME */
+
+#schoolName{
+    text-align:center;
+    margin-top:18px;
+    font-weight:bold;
+    font-size:15px;
+    line-height:1.7;
+    color:#1e293b;
+}
+
+/* TERM FILTER */
+
+#termFilter{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:white;
+    margin-bottom:16px;
+    font-size:15px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.06);
+    outline:none;
+}
+
+/* STUDENT INFO */
+
+#studentInfo{
+    line-height:1.8;
+    background:#f8fafc;
+    padding:14px;
+    border-radius:12px;
+    margin-bottom:16px;
+    font-size:14px;
+}
+
+/* TABLE */
+
+.table-wrap{
+    width:100%;
+    overflow-x:auto;
+    border-radius:12px;
+}
 
 table{
     width:100%;
     border-collapse:collapse;
-    font-size:13px;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:center;
 }
 
 th{
     background:#2563eb;
     color:white;
-}
-
-#msg{
-    color:red;
-    text-align:center;
-    font-weight:bold;
-}
-
-#schoolHeader{
-    text-align:center;
-    font-weight:bold;
-    margin-bottom:10px;
-}
-
-#schoolName{
-    text-align:center;
-    font-weight:bold;
-    margin-top:12px;
-}
-
-#termFilter{
-    width:100%;
     padding:10px;
-    margin:10px 0;
-    border-radius:8px;
+    font-size:13px;
 }
+
+td{
+    padding:9px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:center;
+    font-size:13px;
+    word-break:break-word;
+}
+
+/* FEES */
+
+#fees{
+    line-height:1.9;
+    font-size:14px;
+}
+
+/* WARNING */
+
+#warning{
+    text-align:center;
+    font-size:14px;
+    padding:16px;
+    border-radius:12px;
+    background:#fee2e2;
+    color:#b91c1c;
+}
+
 </style>
+
 </head>
 
 <body>
