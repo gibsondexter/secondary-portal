@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>HOD Dashboard</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    margin:0;
+}
+
+/* TOP HEADER ONLY */
+.header{
+    background:#2563eb;
+    color:white;
+    padding:20px;
+    text-align:center;
+    font-size:20px;
+}
+
+/* SUB HEADER */
+.subheader{
+    text-align:center;
+    padding:10px;
+    background:#1d4ed8;
+    color:white;
+    font-size:14px;
+}
+
+/* CONTENT AREA */
+.container{
+    width:1100px;
+    margin:auto;
+    padding:20px;
+}
+
+/* CARDS */
+.grid{
+    display:grid;
+    grid-template-columns: repeat(3,1fr);
+    gap:15px;
+    margin-top:20px;
+}
+
+.box{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    text-align:center;
+}
+
+h3{
+    margin:5px 0;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔵 TOP WELCOME HEADER -->
+<div class="header" id="welcome">
+    Loading...
+</div>
+
+<div class="subheader" id="department">
+    Department loading...
+</div>
+
+<!-- DASHBOARD CONTENT -->
+<div class="container">
+
+<!-- STATS -->
+<div class="grid">
+
+<div class="box">
+<h3>🎓 Students</h3>
+<h2 id="studentsCount">0</h2>
+</div>
+
+<div class="box">
+<h3>🧑‍🏫 Teachers</h3>
+<h2 id="teachersCount">0</h2>
+</div>
+
+<div class="box">
+<h3>📊 Pass Rate</h3>
+<h2 id="passRate">0%</h2>
+</div>
+
+</div>
+
+<!-- TEACHERS -->
+<div class="box">
+<h3>🧑‍🏫 Teachers in Department</h3>
+<table>
+<tr>
+<th>Name</th>
+<th>Subject</th>
+<th>Class</th>
+</tr>
+<tbody id="teachers"></tbody>
+</table>
+</div>
+
+<!-- STUDENTS -->
+<div class="box">
+<h3>🎓 Students</h3>
+<table>
+<tr>
+<th>Name</th>
+<th>Reg No</th>
+<th>Class</th>
+<th>Balance</th>
+</tr>
+<tbody id="students"></tbody>
+</table>
+</div>
+
+<!-- PERFORMANCE -->
+<div class="box">
+<h3>📊 Performance</h3>
+<table>
+<tr>
+<th>Student</th>
+<th>Subject</th>
+<th>Score</th>
+<th>Grade</th>
+<th>Remarks</th>
+</tr>
+<tbody id="performance"></tbody>
+</table>
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import {
+getFirestore,
+doc,
+getDoc,
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "YOUR_KEY",
+authDomain: "secondary-dexter-system.firebaseapp.com",
+projectId: "secondary-dexter-system",
+storageBucket: "secondary-dexter-system.firebasestorage.app",
+messagingSenderId: "858654232789",
+appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* LOGIN */
+let hod_id = localStorage.getItem("hod_id");
+
+/* ================= HEADER ONLY ================= */
+async function loadHOD(){
+
+let hod_id = localStorage.getItem("officer_id");
+
+if(!hod_id){
+document.getElementById("welcome").innerText = "No HOD logged in";
+return;
+}
+
+let snap = await getDoc(doc(db,"officers", hod_id));
+
+if(!snap.exists()){
+document.getElementById("welcome").innerText = "HOD not found";
+return;
+}
+
+let d = snap.data();
+
+/* CHECK ROLE (VERY IMPORTANT) */
+if(d.role !== "Head of Department"){
+document.getElementById("welcome").innerText = "Access denied";
+return;
+}
+
+/* DISPLAY */
+document.getElementById("welcome").innerText =
+`👋 Welcome Mr/Ms ${d.full_name}`;
+
+document.getElementById("department").innerText =
+`Head of Department - ${d.department}`;
+}
+/* ================= TEACHERS ================= */
+async function loadTeachers(){
+
+let snap = await getDocs(collection(db,"teacher_assignments"));
+
+let rows = "";
+let count = 0;
+
+snap.forEach(d => {
+let x = d.data();
+count++;
+
+rows += `
+<tr>
+<td>${x.teacher_username || "-"}</td>
+<td>${x.subject || "-"}</td>
+<td>${x.form || "-"}</td>
+</tr>`;
+});
+
+document.getElementById("teachers").innerHTML = rows;
+document.getElementById("teachersCount").innerText = count;
+}
+
+/* ================= STUDENTS ================= */
+async function loadStudents(){
+
+let snap = await getDocs(collection(db,"students"));
+
+let rows = "";
+let count = 0;
+
+snap.forEach(d => {
+    let s = d.data();
+    count++;
+
+    rows += `
+    <tr>
+        <td>${s.full_name}</td>
+        <td>${s.reg_no}</td>
+        <td>${s.form}</td>
+        <td>${s.fees_balance || 0}</td>
+    </tr>`;
+});
+
+document.getElementById("students").innerHTML = rows;
+document.getElementById("studentsCount").innerText = count;
+}
+
+/* ================= PERFORMANCE ================= */
+async function loadPerformance(){
+
+let snap = await getDocs(collection(db,"assessments"));
+
+let rows = "";
+let pass = 0;
+let total = 0;
+
+snap.forEach(d => {
+    let x = d.data();
+    total++;
+
+    if(x.score >= 50) pass++;
+
+    rows += `
+    <tr>
+        <td>${x.reg_no}</td>
+        <td>${x.subject}</td>
+        <td>${x.score}</td>
+        <td>${x.grade}</td>
+        <td>${x.remarks || "-"}</td>
+    </tr>`;
+});
+
+document.getElementById("performance").innerHTML = rows;
+
+let rate = total ? Math.round((pass/total)*100) : 0;
+document.getElementById("passRate").innerText = rate + "%";
+}
+
+/* INIT */
+loadHOD();
+loadTeachers();
+loadStudents();
+loadPerformance();
+
+</script>
+
+</body>
+</html>

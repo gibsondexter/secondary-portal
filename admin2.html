@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    margin:0;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar{
+    position:fixed;
+    left:-260px;
+    top:0;
+    width:250px;
+    height:100%;
+    background:#111827;
+    overflow-y:auto;
+    padding-bottom:50px;
+    transition:0.3s;
+    z-index:3000;
+}
+
+.sidebar.active{
+    left:0;
+}
+
+.sidebar h2{
+    color:white;
+    text-align:center;
+    padding:20px 10px;
+    margin:0;
+    background:#1f2937;
+}
+
+.sidebar button{
+    width:100%;
+    border:none;
+    background:none;
+    color:white;
+    text-align:left;
+    padding:15px;
+    cursor:pointer;
+    font-size:15px;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar button:hover{
+    background:#2563eb;
+}
+
+/* ================= MENU BUTTON ================= */
+
+.menuBtn{
+    background:#111827;
+    color:white;
+    border:none;
+    width:45px;
+    height:45px;
+    border-radius:10px;
+    font-size:22px;
+    cursor:pointer;
+}
+
+/* ================= MAIN ================= */
+
+.main{
+    margin-left:0;
+    transition:0.3s;
+}
+
+/* ================= TOP BAR ================= */
+
+.topBar{
+    background:white;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+
+.profile{
+    position:relative;
+}
+
+.profileBtn{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.profileMenu{
+    position:absolute;
+    right:0;
+    top:50px;
+    background:white;
+    width:220px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+    display:none;
+    overflow:hidden;
+}
+
+.profileMenu div{
+    padding:12px;
+    border-bottom:1px solid #eee;
+}
+
+.profileMenu button{
+    border:none;
+    width:100%;
+    background:red;
+    color:white;
+    padding:12px;
+    cursor:pointer;
+}
+
+/* ================= CONTENT ================= */
+
+.content{
+    padding:20px;
+}
+
+h2{
+    text-align:center;
+    margin:15px 0;
+}
+
+.container{
+    width:100%;
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:15px;
+}
+
+.box{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    display:none;
+}
+
+.activeBox{
+    display:block;
+}
+
+input,select,button{
+    width:100%;
+    padding:12px;
+    margin:6px 0;
+    font-size:15px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+#msg{
+    grid-column: span 2;
+    text-align:center;
+    font-weight:bold;
+}
+
+.viewBox{
+    grid-column: span 2;
+    background:white;
+    padding:15px;
+    border-radius:12px;
+}
+
+/* ================= TOP HEADER ================= */
+
+.topHeader{
+    text-align:center;
+    background:white;
+    padding:20px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.topHeader img{
+    width:90px;
+    height:90px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.topHeader h1{
+    margin:10px 0 5px;
+}
+
+.topHeader p{
+    margin:0;
+    color:gray;
+}
+
+/* ================= DESKTOP ================= */
+
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+.closeBtn{
+    display:block;
+}
+}
+
+
+
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+.sidebar{
+    width:250px;
+}
+
+.main{
+    margin-left:0;
+}
+
+.container{
+    grid-template-columns:1fr;
+}
+
+#msg,
+.viewBox{
+    grid-column:span 1;
+}
+}
+/* ================= SIDEBAR TOP ================= */
+
+.sideTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#1f2937;
+    padding:10px;
+}
+
+.sideTop h2{
+    margin:0;
+    background:none;
+    padding:10px;
+    font-size:20px;
+}
+
+/* ================= CLOSE BUTTON ================= */
+
+.closeBtn{
+    background:red;
+    color:white;
+    border:none;
+    width:40px;
+    height:40px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.closeBtn:hover{
+    background:darkred;
+}
+/* ================= CENTER ACTIVE FORM ================= */
+
+.container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:60vh;
+}
+
+/* make inactive boxes fully hidden */
+.box{
+    display:none;
+    width:100%;
+    max-width:500px;
+}
+
+/* active box centered */
+.activeBox{
+    display:block;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar" id="sidebar">
+
+<div class="sideTop">
+
+<h2>MENU</h2>
+
+<button class="closeBtn" onclick="closeSidebar()">
+<i class="fas fa-times"></i>
+</button>
+
+</div>
+
+<button onclick="showSection('schoolBox')">🏫 School Settings</button>
+<button onclick="showSection('studentBox')">🎓 Add Student</button>
+<button onclick="showSection('teacherBox')">🧑‍🏫 Add Teacher</button>
+<button onclick="showSection('subjectBox')">📚 Add Subject</button>
+<button onclick="showSection('accountantBox')">💰 Add Accountant</button>
+<button onclick="showSection('adminBox')">👨‍💼 Add Admin</button>
+<button onclick="showSection('officerBox')">🧠 Add ICT / HOD</button>
+<button onclick="showSection('prefectBox')">🏫 Add Prefect</button>
+<button onclick="showSection('assignBox')">🔗 Assign Teacher</button>
+<button onclick="showSection('viewBox1')">📊 View Data</button>
+<button onclick="showSection('examBox')">📝 Release Exams</button>
+
+<button onclick="eraseDatabase()" style="background:red;">
+🗑️ ERASE DATABASE
+</button>
+
+</div>
+
+<!-- ================= MAIN ================= -->
+<div class="main">
+
+<!-- ================= TOP BAR ================= -->
+<div class="topBar">
+
+<div style="display:flex;align-items:center;gap:10px;">
+
+<button class="menuBtn" onclick="toggleSidebar()">
+<i class="fas fa-bars"></i>
+</button>
+
+<div><b>SECONDARY SCHOOL SYSTEM</b></div>
+
+</div>
+
+<div class="profile">
+
+<button class="profileBtn" onclick="toggleProfile()">
+👤 Profile
+</button>
+
+<div class="profileMenu" id="profileMenu">
+
+<div>
+<b>Name:</b><br>
+<span id="profileName">Administrator</span>
+</div>
+
+<div>
+<b>Username:</b><br>
+<span id="profileUsername">admin</span>
+</div>
+
+<div>
+<b>Role:</b><br>
+<span id="profileRole">Admin</span>
+</div>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="content">
+
+<!-- ================= SCHOOL HEADER ================= -->
+<div class="topHeader">
+    <img id="schoolLogo" src="" alt="Logo">
+    <h1 id="schoolNameTop">Loading School...</h1>
+    <p id="schoolMottoTop"></p>
+</div>
+
+<h2>👨‍💼 ADMIN DASHBOARD (FULL SYSTEM)</h2>
+
+<div class="container">
+
+<!-- SCHOOL SETTINGS -->
+<div class="box activeBox" id="schoolBox">
+<h3>🏫 School Settings</h3>
+
+<input id="sch_name" placeholder="School Name">
+<input id="sch_motto" placeholder="School Motto">
+<input id="sch_year" placeholder="Academic Year">
+<input id="sch_term" placeholder="Term">
+<input id="sch_contact" placeholder="Contact Number">
+
+<button onclick="saveSchoolSettings()">Save Settings</button>
+</div>
+
+<!-- STUDENT -->
+<div class="box" id="studentBox">
+<h3>🎓 Add Student</h3>
+
+<input id="sname" placeholder="Full Name">
+<input id="sdob" type="date">
+<input id="sparent" placeholder="Parent Name">
+<input id="sphone" placeholder="Parent Phone">
+
+<input id="sreg" placeholder="Reg Number">
+<input id="spass" placeholder="Password">
+
+<select id="sclass">
+<option>Form1</option>
+<option>Form2</option>
+<option>Form3</option>
+<option>Form4</option>
+</select>
+
+<button onclick="addStudent()">Add Student</button>
+</div>
+
+<!-- TEACHER -->
+<div class="box" id="teacherBox">
+<h3>🧑‍🏫 Add Teacher</h3>
+
+<input id="tname" placeholder="Full Name">
+<input id="tuser" placeholder="Username">
+<input id="tpass" placeholder="Password">
+
+<select id="tdept">
+<option>Mathematics</option>
+<option>Science</option>
+<option>Languages</option>
+<option>Humanities</option>
+</select>
+
+<button onclick="addTeacher()">Add Teacher</button>
+</div>
+
+<!-- SUBJECT -->
+<div class="box" id="subjectBox">
+<h3>📚 Add Subject</h3>
+
+<input id="subject" placeholder="Subject Name">
+
+<select id="sdept">
+<option>Mathematics</option>
+<option>Science</option>
+<option>Languages</option>
+<option>Humanities</option>
+</select>
+
+<button onclick="addSubject()">Add Subject</button>
+</div>
+
+<!-- ACCOUNTANT -->
+<div class="box" id="accountantBox">
+<h3>💰 Add Accountant</h3>
+
+<input id="aname" placeholder="Full Name">
+<input id="auser" placeholder="Username">
+<input id="apass" placeholder="Password">
+
+<button onclick="addAccountant()">Add Accountant</button>
+</div>
+
+<!-- ADMIN -->
+<div class="box" id="adminBox">
+<h3>👨‍💼 Add Admin</h3>
+
+<input id="admin_name" placeholder="Full Name">
+<input id="admin_user" placeholder="Username">
+<input id="admin_pass" placeholder="Password">
+
+<button onclick="addAdmin()">Add Admin</button>
+</div>
+
+<!-- ICT / HOD -->
+<div class="box" id="officerBox">
+<h3>🧠 Add ICT / HOD</h3>
+
+<input id="off_name" placeholder="Full Name">
+<input id="off_user" placeholder="Username">
+<input id="off_pass" placeholder="Password">
+
+<select id="off_role">
+<option>ICT Manager</option>
+<option>Head of Department</option>
+</select>
+
+<select id="off_dept">
+<option>Mathematics</option>
+<option>Science</option>
+<option>Languages</option>
+<option>Humanities</option>
+</select>
+
+<button onclick="addOfficer()">Add</button>
+</div>
+
+<!-- PREFECT -->
+<div class="box" id="prefectBox">
+<h3>🏫 Add Prefect</h3>
+
+<input id="pname" placeholder="Student Name">
+
+<select id="pclass">
+<option>Form1</option>
+<option>Form2</option>
+<option>Form3</option>
+<option>Form4</option>
+</select>
+
+<input id="prole" placeholder="Prefect Role">
+
+<button onclick="addPrefect()">Add Prefect</button>
+</div>
+
+<!-- ASSIGN -->
+<div class="box" id="assignBox">
+<h3>🔗 Assign Teacher</h3>
+
+<select id="at_teacher">
+<option>Loading teachers...</option>
+</select>
+
+<input id="at_subject" placeholder="Subject">
+
+<select id="at_class">
+<option>Form1</option>
+<option>Form2</option>
+<option>Form3</option>
+<option>Form4</option>
+</select>
+
+<button onclick="assignTeacher()">Assign</button>
+</div>
+
+<!-- VIEW -->
+<div class="box" id="viewBox1">
+<h3>📊 View Data</h3>
+
+<button onclick="viewTeachers()">All Teachers</button>
+<button onclick="viewForm('Form1')">Form 1</button>
+<button onclick="viewForm('Form2')">Form 2</button>
+<button onclick="viewForm('Form3')">Form 3</button>
+<button onclick="viewForm('Form4')">Form 4</button>
+<button onclick="viewPrefects()">Prefects</button>
+</div>
+
+<!-- EXAMS -->
+<div class="box" id="examBox">
+<h3>📝 Exam Release Control</h3>
+
+<select id="examRelease">
+<option value="false">Results Hidden</option>
+<option value="true">Release Results</option>
+</select>
+
+<button onclick="saveExamRelease()">
+Save Release Status
+</button>
+
+<p>
+When results are released, students with validated fees balances
+will see their results on the student dashboard.
+</p>
+</div>
+
+<p id="msg"></p>
+
+<div class="viewBox">
+<h3>📌 Output</h3>
+<div id="output"></div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+addDoc,
+setDoc,
+doc,
+getDocs,
+query,
+where,
+getDoc,
+deleteDoc
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "YOUR_KEY",
+authDomain: "secondary-dexter-system.firebaseapp.com",
+projectId: "secondary-dexter-system",
+storageBucket: "secondary-dexter-system.appspot.com",
+messagingSenderId: "858654232789",
+appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const get = (id) => document.getElementById(id);
+
+function show(text,color="green"){
+document.getElementById("msg").innerText = text;
+document.getElementById("msg").style.color = color;
+}
+
+/* ================= TOGGLE SIDEBAR ================= */
+
+/* ================= OPEN SIDEBAR ================= */
+
+window.toggleSidebar = ()=>{
+
+document.getElementById("sidebar")
+.classList.add("active");
+
+}
+
+/* ================= CLOSE SIDEBAR ================= */
+
+window.closeSidebar = ()=>{
+
+document.getElementById("sidebar")
+.classList.remove("active");
+
+}
+
+/* ================= SHOW SECTION ================= */
+
+window.showSection = (id)=>{
+
+document.querySelectorAll(".box").forEach(box=>{
+box.classList.remove("activeBox");
+});
+
+document.getElementById(id).classList.add("activeBox");
+
+if(window.innerWidth <= 900){
+document.querySelector(".sidebar")
+.classList.remove("active");
+}
+}
+
+/* ================= PROFILE ================= */
+
+window.toggleProfile = ()=>{
+
+let menu = document.getElementById("profileMenu");
+
+if(menu.style.display==="block"){
+menu.style.display="none";
+}else{
+menu.style.display="block";
+}
+}
+
+/* ================= LOGOUT ================= */
+
+window.logout = ()=>{
+localStorage.clear();
+window.location.href="index.html";
+}
+
+/* ================= LOAD TEACHERS ================= */
+
+async function loadTeachersDropdown(){
+
+try{
+
+let snap = await getDocs(collection(db,"teachers"));
+
+let select = document.getElementById("at_teacher");
+
+select.innerHTML =
+"<option value=''>Select Teacher</option>";
+
+snap.forEach(docSnap=>{
+
+let data = docSnap.data();
+
+let option = document.createElement("option");
+
+option.value = data.username;
+
+option.textContent =
+`${data.full_name} (${data.username})`;
+
+select.appendChild(option);
+
+});
+
+}catch(err){
+console.log(err);
+}
+}
+
+loadTeachersDropdown();
+
+/* ================= ERASE DATABASE ================= */
+
+window.eraseDatabase = async ()=>{
+
+if(!confirm("⚠ This will delete ALL DATA EXCEPT ADMINS. Continue?")){
+return;
+}
+
+try{
+
+const collections = [
+"students",
+"teachers",
+"accountants",
+"ict",
+"prefects",
+"subjects",
+"officers",
+"settings",
+"teacher_assignments"
+];
+
+for(let col of collections){
+
+let snap = await getDocs(collection(db,col));
+
+for(let d of snap.docs){
+await deleteDoc(doc(db,col,d.id));
+}
+}
+
+show("🔥 DATABASE ERASED ✔");
+
+}catch(err){
+show("Error: "+err.message,"red");
+}
+};
+
+/* ================= SCHOOL HEADER ================= */
+
+async function loadSchool(){
+
+const snap = await getDoc(doc(db,"settings","school"));
+
+if(snap.exists()){
+
+let d = snap.data();
+
+document.getElementById("schoolNameTop").innerText =
+d.name || "School Name";
+
+document.getElementById("schoolMottoTop").innerText =
+d.motto || "School Motto";
+
+if(d.logo){
+document.getElementById("schoolLogo").src = d.logo;
+}
+}
+}
+
+loadSchool();
+
+/* ================= SCHOOL SETTINGS ================= */
+
+window.saveSchoolSettings = async ()=>{
+
+await setDoc(doc(db,"settings","school"),{
+name: get("sch_name").value,
+motto: get("sch_motto").value,
+academic_year: get("sch_year").value,
+term: get("sch_term").value,
+contact: get("sch_contact").value
+});
+
+show("School settings saved ✔");
+}
+
+/* ================= STUDENT ================= */
+
+window.addStudent = async ()=>{
+
+await setDoc(doc(db,"students",sreg.value),{
+
+full_name:sname.value,
+reg_no:sreg.value,
+password:spass.value,
+form:sclass.value,
+dob:sdob.value,
+parent_name:sparent.value,
+parent_phone:sphone.value,
+
+fees_balance:0,
+fees_validated:true
+
+});
+
+show("Student added ✔");
+}
+
+/* ================= TEACHER ================= */
+
+window.addTeacher = async ()=>{
+
+await setDoc(doc(db,"teachers",tuser.value),{
+full_name:tname.value,
+username:tuser.value,
+password:tpass.value,
+department:tdept.value,
+role:"teacher"
+});
+
+show("Teacher added ✔");
+
+loadTeachersDropdown();
+}
+
+/* ================= SUBJECT ================= */
+
+window.addSubject = async ()=>{
+
+await addDoc(collection(db,"subjects"),{
+name:subject.value,
+department:sdept.value
+});
+
+show("Subject added ✔");
+}
+
+/* ================= ACCOUNTANT ================= */
+
+window.addAccountant = async ()=>{
+
+await setDoc(doc(db,"accountants",auser.value),{
+full_name:aname.value,
+username:auser.value,
+password:apass.value,
+role:"accountant"
+});
+
+show("Accountant added ✔");
+}
+
+/* ================= ADMIN ================= */
+
+window.addAdmin = async ()=>{
+
+await setDoc(doc(db,"admins",admin_user.value),{
+full_name:admin_name.value,
+username:admin_user.value,
+password:admin_pass.value,
+role:"admin"
+});
+
+show("Admin added ✔");
+}
+
+/* ================= OFFICER ================= */
+
+window.addOfficer = async ()=>{
+
+await setDoc(doc(db,"officers",off_user.value),{
+full_name:off_name.value,
+username:off_user.value,
+password:off_pass.value,
+role:off_role.value,
+department:off_dept.value
+});
+
+show("Officer added ✔");
+}
+
+/* ================= PREFECT ================= */
+
+window.addPrefect = async ()=>{
+
+await addDoc(collection(db,"prefects"),{
+name:pname.value,
+class:pclass.value,
+role:prole.value
+});
+
+show("Prefect added ✔");
+}
+
+/* ================= ASSIGN ================= */
+
+window.assignTeacher = async ()=>{
+
+await addDoc(collection(db,"teacher_assignments"),{
+teacher_username:at_teacher.value,
+subject:at_subject.value,
+form:at_class.value
+});
+
+show("Assigned ✔");
+}
+
+/* ================= RELEASE RESULTS ================= */
+
+window.saveExamRelease = async ()=>{
+
+await setDoc(doc(db,"settings","exam_control"),{
+
+released:
+document.getElementById("examRelease").value === "true"
+
+});
+
+show("Exam release updated ✔");
+}
+
+/* ================= VIEW TEACHERS ================= */
+
+window.viewTeachers = async ()=>{
+
+let snap = await getDocs(collection(db,"teachers"));
+
+let out="";
+
+snap.forEach(d=>{
+
+let x=d.data();
+
+out += `
+<div style="padding:10px;border-bottom:1px solid #ddd;">
+<b>${x.full_name}</b><br>
+Department: ${x.department}
+</div>
+`;
+});
+
+output.innerHTML=out;
+}
+
+/* ================= VIEW FORM ================= */
+
+window.viewForm = async (form)=>{
+
+let q=query(
+collection(db,"students"),
+where("form","==",form)
+);
+
+let snap=await getDocs(q);
+
+let out="";
+
+snap.forEach(d=>{
+
+let x=d.data();
+
+out += `
+<div style="padding:10px;border-bottom:1px solid #ddd;">
+<b>${x.full_name}</b><br>
+${x.reg_no}
+</div>
+`;
+});
+
+output.innerHTML=out;
+}
+
+/* ================= VIEW PREFECTS ================= */
+
+window.viewPrefects = async ()=>{
+
+let snap=await getDocs(collection(db,"prefects"));
+
+let out="";
+
+snap.forEach(d=>{
+
+let x=d.data();
+
+out += `
+<div style="padding:10px;border-bottom:1px solid #ddd;">
+<b>${x.name}</b><br>
+${x.class} - ${x.role}
+</div>
+`;
+});
+
+output.innerHTML=out;
+}
+
+</script>
+
+</body>
+</html>

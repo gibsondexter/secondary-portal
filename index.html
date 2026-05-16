@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>School Login</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    margin:0;
+    padding:0;
+}
+
+.header{
+    text-align:center;
+    padding:20px;
+    background:white;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.header img{
+    width:90px;
+    height:90px;
+    object-fit:contain;
+    margin-bottom:10px;
+}
+
+.header h2{ margin:5px 0; }
+.header p{ margin:0; font-style:italic; color:#555; }
+
+.box{
+    width:90%;
+    max-width:380px;
+    margin:30px auto;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input,button{
+    width:100%;
+    padding:14px;
+    margin:10px 0;
+    font-size:16px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#msg{
+    text-align:center;
+    margin-top:10px;
+    font-weight:bold;
+}
+
+#wisdomImg{
+    width:100%;
+    max-width:200px;
+    margin-top:10px;
+}
+
+@media (max-width: 600px){
+    .box{
+        margin:20px auto;
+        padding:20px;
+        width:92%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <img id="logo" src="" style="display:none;">
+    <h2 id="schoolName">Loading...</h2>
+    <p id="schoolMotto"></p>
+    <img id="wisdomImg" src="" style="display:none;">
+</div>
+
+<div class="box">
+    <h2>School Login</h2>
+
+    <input id="username" placeholder="Reg No / Username">
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <p id="msg"></p>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "YOUR_KEY",
+    authDomain: "secondary-dexter-system.firebaseapp.com",
+    projectId: "secondary-dexter-system",
+    storageBucket: "secondary-dexter-system.appspot.com",
+    messagingSenderId: "858654232789",
+    appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* LOAD SCHOOL */
+async function loadSchool(){
+    let snap = await getDoc(doc(db,"settings","school"));
+
+    if(snap.exists()){
+        let d = snap.data();
+
+        schoolName.innerText = d.name || "School Name";
+        schoolMotto.innerText = d.motto || "Striving for Excellence";
+
+        if(d.logo){
+            logo.src = d.logo;
+            logo.style.display = "block";
+        }
+
+        if(d.wisdom){
+            wisdomImg.src = d.wisdom;
+            wisdomImg.style.display = "block";
+        }
+    }
+}
+
+/* LOGIN */
+window.login = async function(){
+
+    let id = document.getElementById("username").value.trim();
+    let pass = document.getElementById("password").value.trim();
+    let msg = document.getElementById("msg");
+
+    if(!id || !pass){
+        msg.innerText = "Fill all fields";
+        msg.style.color = "red";
+        return;
+    }
+
+    /* STUDENT */
+    let studentSnap = await getDoc(doc(db,"students", id));
+    if(studentSnap.exists() && studentSnap.data().password === pass){
+        localStorage.setItem("reg_no", id);
+        window.location.href = "student2.html";
+        return;
+    }
+
+    /* TEACHER */
+    let teacherSnap = await getDoc(doc(db,"teachers", id));
+    if(teacherSnap.exists() && teacherSnap.data().password === pass){
+        localStorage.setItem("teacher_id", id);
+        window.location.href = "teacher2.html";
+        return;
+    }
+
+    /* ADMIN */
+    let adminSnap = await getDoc(doc(db,"admins", id));
+    if(adminSnap.exists() && adminSnap.data().password === pass){
+        localStorage.setItem("admin_id", id);
+        window.location.href = "admin2.html";
+        return;
+    }
+
+    /* OFFICERS (FIXED HERE) */
+    let officerSnap = await getDoc(doc(db,"officers", id));
+    if(officerSnap.exists() && officerSnap.data().password === pass){
+
+        let role = officerSnap.data().role;
+
+        localStorage.setItem("officer_id", id);
+        localStorage.setItem("officer_role", role);
+
+        if(role === "ICT Manager"){
+            window.location.href = "ict.html";
+        }else{
+            window.location.href = "hod.html";
+        }
+
+        return;
+    }
+
+    /* ACCOUNTANT */
+    let accountSnap = await getDoc(doc(db,"accountants", id));
+    if(accountSnap.exists() && accountSnap.data().password === pass){
+        localStorage.setItem("accountant_id", id);
+        window.location.href = "account2.html";
+        return;
+    }
+
+    msg.innerText = "Invalid credentials ❌";
+    msg.style.color = "red";
+}
+
+loadSchool();
+
+</script>
+
+</body>
+</html>

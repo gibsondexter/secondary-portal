@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Accounts Dashboard</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    margin:0;
+}
+
+/* DESKTOP ONLY */
+.container{
+    width:900px;
+    margin:auto;
+    padding:20px;
+}
+
+/* TOP BOX */
+.box{
+    background:white;
+    padding:15px;
+    margin:10px 0;
+    border-radius:10px;
+    box-shadow:0 0 10px #ccc;
+}
+
+input,select,button{
+    width:100%;
+    padding:10px;
+    margin:5px 0;
+}
+
+button{
+    border:none;
+    cursor:pointer;
+    color:white;
+}
+
+.green{background:#16a34a;}
+.blue{background:#2563eb;}
+.orange{background:#f59e0b;}
+.red{background:#dc2626;}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<h2 style="text-align:center;">💰 ACCOUNTS DASHBOARD (PRO)</h2>
+
+<div class="container">
+
+<!-- SET TERM FEES -->
+<div class="box">
+<h3>📌 Set Term Fee</h3>
+
+<input id="reg_fee" placeholder="Student Reg No">
+<input id="term_fee" type="number" placeholder="Term Fee (MWK)">
+
+<button class="blue" onclick="setFee()">Set Fee</button>
+<p id="msg"></p>
+</div>
+
+<!-- RECORD PAYMENT -->
+<div class="box">
+<h3>💵 Record Payment</h3>
+
+<input id="reg" placeholder="Student Reg No">
+<input id="amount" type="number" placeholder="Amount Paid">
+
+<button class="green" onclick="recordPayment()">Save Payment</button>
+</div>
+
+<!-- SUMMARY -->
+<div class="box">
+<h3 id="income">💰 Total Income: MWK 0</h3>
+</div>
+
+<!-- FILTERS -->
+<div class="box">
+
+<button class="blue" onclick="loadAll()">All Students</button>
+<button class="green" onclick="loadPaid()">Fully Paid</button>
+<button class="orange" onclick="loadPartial()">Partial Payment</button>
+<button class="red" onclick="loadUnpaid()">Unpaid</button>
+
+</div>
+
+<!-- TABLE -->
+<div class="box">
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Reg No</th>
+<th>Term Fee</th>
+<th>Paid</th>
+<th>Balance</th>
+</tr>
+</thead>
+
+<tbody id="data"></tbody>
+</table>
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import {
+getFirestore,
+collection,
+getDocs,
+addDoc,
+updateDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "YOUR_KEY",
+authDomain: "secondary-dexter-system.firebaseapp.com",
+projectId: "secondary-dexter-system",
+storageBucket: "secondary-dexter-system.firebasestorage.app",
+messagingSenderId: "858654232789",
+appId: "1:858654232789:web:2e3ee303ef52258dfd525c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let students = [];
+
+/* LOAD STUDENTS */
+async function loadStudents(){
+
+let snap = await getDocs(collection(db,"students"));
+students = [];
+
+snap.forEach(d=>{
+students.push({id:d.id,...d.data()});
+});
+
+render(students);
+}
+
+/* RENDER TABLE */
+function render(data){
+
+let rows = "";
+
+data.forEach(s=>{
+
+let fee = s.term_fee || 0;
+let paid = s.total_paid || 0;
+let balance = fee - paid;
+
+rows += `
+<tr>
+<td>${s.full_name}</td>
+<td>${s.reg_no}</td>
+<td>${fee}</td>
+<td>${paid}</td>
+<td>${balance}</td>
+</tr>`;
+});
+
+document.getElementById("data").innerHTML = rows;
+}
+
+/* SET TERM FEE */
+window.setFee = async function(){
+
+let reg = document.getElementById("reg_fee").value;
+let fee = Number(document.getElementById("term_fee").value);
+
+for(let s of students){
+if(s.reg_no === reg){
+
+await updateDoc(doc(db,"students",s.id),{
+term_fee: fee,
+total_paid: 0
+});
+
+}
+}
+
+document.getElementById("msg").innerText = "Fee updated ✔";
+loadStudents();
+}
+
+/* RECORD PAYMENT */
+window.recordPayment = async function(){
+
+let reg = document.getElementById("reg").value;
+let amount = Number(document.getElementById("amount").value);
+
+for(let s of students){
+
+if(s.reg_no === reg){
+
+let fee = s.term_fee || 0;
+let paid = (s.total_paid || 0) + amount;
+let balance = fee - paid;
+
+await updateDoc(doc(db,"students",s.id),{
+total_paid: paid,
+fees_balance: balance
+});
+}
+}
+
+loadStudents();
+loadIncome();
+};
+
+/* FILTERS */
+window.loadAll = ()=>render(students);
+
+window.loadPaid = ()=>{
+render(students.filter(s=>(s.term_fee - (s.total_paid||0))<=0));
+};
+
+window.loadPartial = ()=>{
+render(students.filter(s=>
+(s.total_paid||0)>0 &&
+(s.term_fee - (s.total_paid||0))>0
+));
+};
+
+window.loadUnpaid = ()=>{
+render(students.filter(s=>(s.total_paid||0)==0));
+};
+
+/* INCOME */
+async function loadIncome(){
+
+let snap = await getDocs(collection(db,"payments"));
+let total = 0;
+
+snap.forEach(d=>{
+total += d.data().amount_paid || 0;
+});
+
+document.getElementById("income").innerText =
+"💰 Total Income: MWK " + total;
+}
+
+/* INIT */
+loadStudents();
+loadIncome();
+
+</script>
+
+</body>
+</html>

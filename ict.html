@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ICT Manager Dashboard</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    margin:0;
+}
+
+/* DESKTOP VIEW */
+.container{
+    width:1000px;
+    margin:auto;
+    padding:20px;
+}
+
+.box{
+    background:white;
+    padding:15px;
+    margin:10px 0;
+    border-radius:10px;
+    box-shadow:0 0 10px #ccc;
+}
+
+input,select,button{
+    width:100%;
+    padding:10px;
+    margin:6px 0;
+}
+
+button{
+    border:none;
+    cursor:pointer;
+    color:white;
+}
+
+.blue{background:#2563eb;}
+.green{background:#16a34a;}
+.red{background:#dc2626;}
+
+h2{
+    text-align:center;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>💻 ICT MANAGER DASHBOARD (PRO)</h2>
+
+<div class="container">
+
+<!-- SEARCH STUDENT -->
+<div class="box">
+<h3>🔍 Search Student</h3>
+
+<input id="search_reg" placeholder="Enter Reg Number">
+<button class="blue" onclick="searchStudent()">Search</button>
+
+<p id="msg"></p>
+</div>
+
+<!-- STUDENT DETAILS -->
+<div class="box">
+<h3>📄 Student Details</h3>
+<div id="details">No student loaded</div>
+</div>
+
+<!-- UPDATE -->
+<div class="box">
+<h3>✏️ Update Student</h3>
+
+<input id="u_name" placeholder="Full Name">
+<input id="u_dob" placeholder="Date of Birth">
+<input id="u_parent" placeholder="Parent Name">
+<input id="u_phone" placeholder="Parent Phone">
+<input id="u_pass" placeholder="Password">
+
+<button class="green" onclick="updateStudent()">Update</button>
+</div>
+
+<!-- DELETE STUDENT -->
+<div class="box">
+<h3>❌ Delete Student</h3>
+
+<button class="red" onclick="deleteStudent()">Delete This Student</button>
+</div>
+
+<!-- USER MANAGEMENT -->
+<div class="box">
+<h3>⚠️ Manage Users</h3>
+
+<select id="user_type" onchange="loadUsers()">
+    <option value="teachers">Teachers</option>
+    <option value="accountants">Accountants</option>
+    <option value="admins">Admins</option>
+    <option value="prefects">Prefects</option>
+    <option value="ict_managers">ICT Managers</option>
+     <option value="ict_managers">HODS</option>
+</select>
+
+<select id="user_list">
+    <option>Select user...</option>
+</select>
+
+<button class="red" onclick="deleteSelectedUser()">Delete Selected User</button>
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import {
+getFirestore,
+doc,
+getDoc,
+updateDoc,
+deleteDoc,
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+apiKey: "YOUR_KEY",
+authDomain: "secondary-dexter-system.firebaseapp.com",
+projectId: "secondary-dexter-system",
+storageBucket: "secondary-dexter-system.firebasestorage.app",
+messagingSenderId: "858654232789",
+appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let currentStudent = "";
+
+/* MESSAGE */
+function show(msg,color="green"){
+let m = document.getElementById("msg");
+m.innerText = msg;
+m.style.color = color;
+}
+
+/* ================= SEARCH STUDENT ================= */
+window.searchStudent = async function(){
+
+let reg = document.getElementById("search_reg").value;
+
+if(!reg){
+    show("Enter Reg Number","red");
+    return;
+}
+
+let snap = await getDoc(doc(db,"students",reg));
+
+if(!snap.exists()){
+    show("Student not found ❌","red");
+    return;
+}
+
+let d = snap.data();
+currentStudent = reg;
+
+/* 🔥 SHOW ALL ADMIN STUDENT DATA */
+document.getElementById("details").innerHTML = `
+Name: ${d.full_name || "-"}<br>
+Reg No: ${d.reg_no || "-"}<br>
+Class: ${d.form || "-"}<br>
+DOB: ${d.dob || "-"}<br>
+Parent: ${d.parent_name || "-"}<br>
+Phone: ${d.parent_phone || "-"}<br>
+Password: ${d.password || "-"}<br>
+💰 Balance: MWK ${d.fees_balance || 0}
+`;
+
+document.getElementById("u_name").value = d.full_name || "";
+document.getElementById("u_dob").value = d.dob || "";
+document.getElementById("u_parent").value = d.parent_name || "";
+document.getElementById("u_phone").value = d.parent_phone || "";
+document.getElementById("u_pass").value = d.password || "";
+
+show("Student loaded ✔");
+}
+
+/* ================= UPDATE STUDENT ================= */
+window.updateStudent = async function(){
+
+if(!currentStudent){
+    show("Search student first","red");
+    return;
+}
+
+await updateDoc(doc(db,"students",currentStudent),{
+full_name: document.getElementById("u_name").value,
+dob: document.getElementById("u_dob").value,
+parent_name: document.getElementById("u_parent").value,
+parent_phone: document.getElementById("u_phone").value,
+password: document.getElementById("u_pass").value
+});
+
+show("Updated ✔");
+}
+
+/* ================= DELETE STUDENT ================= */
+window.deleteStudent = async function(){
+
+if(!currentStudent){
+    show("Search student first","red");
+    return;
+}
+
+if(!confirm("Delete this student?")){
+    return;
+}
+
+await deleteDoc(doc(db,"students",currentStudent));
+
+show("Student deleted ✔","red");
+
+document.getElementById("details").innerHTML = "No student loaded";
+currentStudent = "";
+}
+
+/* ================= LOAD USERS ================= */
+window.loadUsers = async function(){
+
+let type = document.getElementById("user_type").value;
+let list = document.getElementById("user_list");
+
+list.innerHTML = "<option>Loading...</option>";
+
+let snap = await getDocs(collection(db,type));
+
+let options = "";
+
+/* 🔥 INCLUDE HOD CLEANLY */
+snap.forEach(docu => {
+
+let d = docu.data();
+let name = d.full_name || d.username || docu.id;
+
+options += `<option value="${docu.id}">
+${name} (${docu.id})
+</option>`;
+});
+
+list.innerHTML = options;
+}
+
+/* ================= DELETE SELECTED USER ================= */
+window.deleteSelectedUser = async function(){
+
+let type = document.getElementById("user_type").value;
+let id = document.getElementById("user_list").value;
+
+if(!id){
+    show("Select a user","red");
+    return;
+}
+
+if(!confirm("Delete this user?")){
+    return;
+}
+
+await deleteDoc(doc(db,type,id));
+
+show("User deleted ✔","red");
+
+loadUsers();
+}
+
+/* INIT */
+loadUsers();
+
+</script>
+</body>
+</html>

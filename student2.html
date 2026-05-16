@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Dashboard</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f6f9;
+    margin:0;
+    padding:0;
+}
+
+.container{
+    width:95%;
+    max-width:550px;
+    margin:auto;
+    padding:10px;
+}
+
+.box{
+    background:white;
+    padding:15px;
+    margin:10px 0;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.08);
+}
+
+h2,h3{margin:6px 0;}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:8px;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+#msg{
+    color:red;
+    text-align:center;
+    font-weight:bold;
+}
+
+#schoolHeader{
+    text-align:center;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+#schoolName{
+    text-align:center;
+    font-weight:bold;
+    margin-top:12px;
+}
+
+#termFilter{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- TERM FILTER -->
+<select id="termFilter">
+    <option value="Term 1">Term 1</option>
+    <option value="Term 2">Term 2</option>
+    <option value="Term 3">Term 3</option>
+</select>
+
+<!-- TOP HEADER -->
+<div class="box" id="schoolHeader">
+Loading academic info...
+</div>
+
+<!-- REPORT -->
+<div class="box" id="reportBox">
+    <h2>🎓 Student Dashboard</h2>
+
+    <h3>📊 Report Card</h3>
+
+    <div id="studentInfo" style="line-height:1.6;margin-bottom:10px;"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Score</th>
+                <th>Grade</th>
+                <th>Teacher</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody id="report"></tbody>
+    </table>
+
+    <div id="schoolName"></div>
+</div>
+
+<div class="box" id="fees"></div>
+
+<div class="box" id="warning" style="display:none;color:red;font-weight:bold;"></div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import {
+getFirestore,
+collection,
+query,
+where,
+getDocs,
+getDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyDjc2AAHQEMUN28zsXJIEIdWvniGUg84Wc",
+authDomain: "secondary-dexter-system.firebaseapp.com",
+projectId: "secondary-dexter-system",
+storageBucket: "secondary-dexter-system.firebasestorage.app",
+messagingSenderId: "858654232789",
+appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const reg_no = localStorage.getItem("reg_no");
+
+/* ================= EXAM RELEASE ================= */
+async function checkExamRelease(){
+let snap = await getDoc(doc(db,"settings","exam_control"));
+if(!snap.exists()) return true;
+return snap.data().released === true;
+}
+
+/* ================= REMARKS ================= */
+function getRemark(score){
+if(score >= 75) return "Excellent";
+if(score >= 65) return "Very Good";
+if(score >= 50) return "Good";
+if(score >= 40) return "Average";
+return "Poor";
+}
+
+/* ================= GRADING ================= */
+function getGrade(score, form){
+if(form === "Form1" || form === "Form2"){
+if(score >= 75) return "A";
+if(score >= 65) return "B";
+if(score >= 50) return "C";
+if(score >= 40) return "D";
+return "F";
+}else{
+if(score >= 75) return "1";
+if(score >= 65) return "2";
+if(score >= 50) return "3";
+if(score >= 45) return "4";
+if(score >= 40) return "5";
+if(score >= 35) return "6";
+if(score >= 30) return "8";
+return "9 (FAIL)";
+}
+}
+
+/* ================= PROFILE ================= */
+async function loadProfile(){
+
+if(!reg_no){
+document.getElementById("warning").style.display = "block";
+document.getElementById("warning").innerText = "⚠️ Login required.";
+return null;
+}
+
+let snap = await getDocs(query(collection(db,"students"), where("reg_no","==",reg_no)));
+
+if(snap.empty){
+document.getElementById("warning").style.display = "block";
+document.getElementById("warning").innerText = "⚠️ Student not found.";
+return null;
+}
+
+let student = snap.docs[0].data();
+
+let fee = Number(student.term_fee || 0);
+let paid = Number(student.total_paid || 0);
+let balance = fee - paid;
+
+document.getElementById("fees").innerHTML = `
+<h3>💰 Fees Summary</h3>
+Total Fee: MWK ${fee}<br>
+Paid: MWK ${paid}<br>
+Balance: MWK ${balance}
+`;
+
+if(balance > 0){
+document.getElementById("reportBox").style.display = "none";
+document.getElementById("warning").style.display = "block";
+document.getElementById("warning").innerHTML =
+`⚠️ You cannot view report card due to balance MWK ${balance}`;
+return null;
+}
+
+return student;
+}
+
+/* ================= REPORT ================= */
+async function loadReport(student){
+
+if(!student) return;
+
+let selectedTerm = document.getElementById("termFilter").value;
+
+/* POSITION */
+let studentsSnap = await getDocs(query(collection(db,"students"), where("form","==",student.form)));
+
+let results = [];
+
+for(let sDoc of studentsSnap.docs){
+
+let s = sDoc.data();
+
+let assessSnap = await getDocs(query(
+collection(db,"assessments"),
+where("reg_no","==",s.reg_no),
+where("term","==",selectedTerm)
+));
+
+let total = 0;
+assessSnap.forEach(a => total += a.data().score || 0);
+
+results.push({ reg_no: s.reg_no, total });
+}
+
+results.sort((a,b)=>b.total-a.total);
+
+let pos = results.findIndex(x=>x.reg_no===student.reg_no)+1;
+
+/* INFO */
+document.getElementById("studentInfo").innerHTML = `
+<b>Name:</b> ${student.full_name}<br>
+<b>Class:</b> ${student.form}<br>
+<b>Term:</b> ${selectedTerm}<br>
+<b>Position:</b> ${pos}/${results.length}
+`;
+
+/* SUBJECTS */
+let subjectsSnap = await getDocs(collection(db,"subjects"));
+
+let assessSnap = await getDocs(query(
+collection(db,"assessments"),
+where("reg_no","==",student.reg_no),
+where("term","==",selectedTerm)
+));
+
+let map = {};
+assessSnap.forEach(d=>{
+map[d.data().subject] = d.data();
+});
+
+let rows = "";
+
+subjectsSnap.forEach(doc=>{
+let sub = doc.data().name;
+let a = map[sub] || {};
+let score = a.score || 0;
+
+rows += `
+<tr>
+<td>${sub}</td>
+<td>${score}</td>
+<td>${getGrade(score,student.form)}</td>
+<td>${a.teacher || "-"}</td>
+<td>${getRemark(score)}</td>
+</tr>`;
+});
+
+document.getElementById("report").innerHTML = rows;
+}
+
+/* ================= SCHOOL ================= */
+async function loadSchool(){
+
+let snap = await getDocs(collection(db,"settings"));
+
+snap.forEach(d=>{
+let x = d.data();
+
+document.getElementById("schoolHeader").innerHTML =
+`Academic Year: ${x.academic_year || "2026"} | Term: ${x.term || "Term 1"}`;
+
+document.getElementById("schoolName").innerHTML =
+`🏫 ${x.name || "School Name"}<br><i>${x.motto || ""}</i>`;
+});
+}
+
+/* ================= INIT ================= */
+(async ()=>{
+
+let released = await checkExamRelease();
+
+if(!released){
+document.getElementById("reportBox").innerHTML =
+"<h2>❌ Exams not released yet by administration</h2>";
+loadSchool();
+return;
+}
+
+let student = await loadProfile();
+await loadReport(student);
+loadSchool();
+
+})();
+
+/* ================= TERM CHANGE ================= */
+document.getElementById("termFilter").addEventListener("change", async ()=>{
+let student = await loadProfile();
+await loadReport(student);
+});
+
+</script>
+
+</body>
+</html>
