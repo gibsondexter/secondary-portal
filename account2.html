@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Accounts Dashboard</title>
+<title>Accounts Dashboard (Term System)</title>
 
 <style>
 body{
@@ -10,14 +10,12 @@ body{
     margin:0;
 }
 
-/* DESKTOP ONLY */
 .container{
     width:900px;
     margin:auto;
     padding:20px;
 }
 
-/* TOP BOX */
 .box{
     background:white;
     padding:15px;
@@ -63,54 +61,73 @@ th{
 
 <body>
 
-<h2 style="text-align:center;">💰 ACCOUNTS DASHBOARD (PRO)</h2>
+<h2 style="text-align:center;">💰 ACCOUNTS DASHBOARD (TERM SYSTEM)</h2>
 
 <div class="container">
 
-<!-- SET TERM FEES -->
+<!-- SET FEES -->
 <div class="box">
-<h3>📌 Set Term Fee</h3>
+<h3>📌 Set Term Fee (ALL Students)</h3>
 
-<input id="reg_fee" placeholder="Student Reg No">
-<input id="term_fee" type="number" placeholder="Term Fee (MWK)">
+<select id="set_term">
+<option>Term 1</option>
+<option>Term 2</option>
+<option>Term 3</option>
+</select>
 
-<button class="blue" onclick="setFee()">Set Fee</button>
+<input id="term_fee" type="number" placeholder="Enter Term Fee (MWK)">
+<button class="blue" onclick="setFee()">Set Fee for All</button>
+
 <p id="msg"></p>
 </div>
 
-<!-- RECORD PAYMENT -->
+<!-- PAYMENT -->
 <div class="box">
 <h3>💵 Record Payment</h3>
 
 <input id="reg" placeholder="Student Reg No">
-<input id="amount" type="number" placeholder="Amount Paid">
 
+<select id="payment_term">
+<option>Term 1</option>
+<option>Term 2</option>
+<option>Term 3</option>
+</select>
+
+<input id="amount" type="number" placeholder="Amount Paid">
 <button class="green" onclick="recordPayment()">Save Payment</button>
 </div>
 
-<!-- SUMMARY -->
+<!-- VIEW TERM -->
 <div class="box">
-<h3 id="income">💰 Total Income: MWK 0</h3>
+<h3>📊 View Students by Term</h3>
+
+<select id="view_term" onchange="render(students)">
+<option>Term 1</option>
+<option>Term 2</option>
+<option>Term 3</option>
+</select>
+
 </div>
 
 <!-- FILTERS -->
 <div class="box">
 
-<button class="blue" onclick="loadAll()">All Students</button>
+<button class="blue" onclick="loadAll()">All</button>
 <button class="green" onclick="loadPaid()">Fully Paid</button>
-<button class="orange" onclick="loadPartial()">Partial Payment</button>
+<button class="orange" onclick="loadPartial()">Partial</button>
 <button class="red" onclick="loadUnpaid()">Unpaid</button>
 
 </div>
 
 <!-- TABLE -->
 <div class="box">
+
 <table>
 <thead>
 <tr>
 <th>Name</th>
 <th>Reg No</th>
-<th>Term Fee</th>
+<th>Fee</th>
 <th>Paid</th>
 <th>Balance</th>
 </tr>
@@ -118,6 +135,7 @@ th{
 
 <tbody id="data"></tbody>
 </table>
+
 </div>
 
 </div>
@@ -125,11 +143,11 @@ th{
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
 import {
 getFirestore,
 collection,
 getDocs,
-addDoc,
 updateDoc,
 doc
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
@@ -152,6 +170,7 @@ let students = [];
 async function loadStudents(){
 
 let snap = await getDocs(collection(db,"students"));
+
 students = [];
 
 snap.forEach(d=>{
@@ -161,15 +180,24 @@ students.push({id:d.id,...d.data()});
 render(students);
 }
 
-/* RENDER TABLE */
+/* GET TERM */
+function getTerm(id){
+return document.getElementById(id).value;
+}
+
+/* RENDER */
 function render(data){
+
+let term = getTerm("view_term");
 
 let rows = "";
 
 data.forEach(s=>{
 
-let fee = s.term_fee || 0;
-let paid = s.total_paid || 0;
+let feeData = s.fees?.[term] || {};
+
+let fee = feeData.fee || 0;
+let paid = feeData.paid || 0;
 let balance = fee - paid;
 
 rows += `
@@ -179,93 +207,127 @@ rows += `
 <td>${fee}</td>
 <td>${paid}</td>
 <td>${balance}</td>
-</tr>`;
+</tr>
+`;
 });
 
 document.getElementById("data").innerHTML = rows;
 }
 
-/* SET TERM FEE */
+/* SET FEE FOR ALL */
 window.setFee = async function(){
 
-let reg = document.getElementById("reg_fee").value;
+let term = getTerm("set_term");
 let fee = Number(document.getElementById("term_fee").value);
 
+if(!fee || fee <= 0){
+alert("Enter valid fee");
+return;
+}
+
 for(let s of students){
-if(s.reg_no === reg){
+
+let fees = s.fees || {};
+
+fees[term] = {
+fee: fee,
+paid: 0,
+balance: fee
+};
 
 await updateDoc(doc(db,"students",s.id),{
-term_fee: fee,
-total_paid: 0
+fees: fees
 });
-
-}
 }
 
-document.getElementById("msg").innerText = "Fee updated ✔";
+document.getElementById("msg").innerText = "Fees set successfully ✔";
+
 loadStudents();
-}
+};
 
-/* RECORD PAYMENT */
+/* RECORD PAYMENT WITH OVERPAYMENT CHECK */
 window.recordPayment = async function(){
 
 let reg = document.getElementById("reg").value;
 let amount = Number(document.getElementById("amount").value);
+let term = getTerm("payment_term");
+
+if(!reg || !amount || amount <= 0){
+alert("Enter valid data");
+return;
+}
 
 for(let s of students){
 
 if(s.reg_no === reg){
 
-let fee = s.term_fee || 0;
-let paid = (s.total_paid || 0) + amount;
+let fees = s.fees || {};
+
+let fee = fees[term]?.fee || 0;
+let paid = fees[term]?.paid || 0;
 let balance = fee - paid;
 
+// ❌ OVERPAYMENT CHECK
+if(amount > balance){
+alert("❌ Payment exceeds balance! Remaining: MWK " + balance);
+return;
+}
+
+paid += amount;
+balance = fee - paid;
+
+fees[term] = {
+fee: fee,
+paid: paid,
+balance: balance
+};
+
 await updateDoc(doc(db,"students",s.id),{
-total_paid: paid,
-fees_balance: balance
+fees: fees
 });
+
+alert("✅ Payment recorded");
 }
 }
 
 loadStudents();
-loadIncome();
 };
 
 /* FILTERS */
 window.loadAll = ()=>render(students);
 
 window.loadPaid = ()=>{
-render(students.filter(s=>(s.term_fee - (s.total_paid||0))<=0));
+
+let term = getTerm("view_term");
+
+render(students.filter(s=>{
+let f = s.fees?.[term];
+return f && f.balance <= 0;
+}));
 };
 
 window.loadPartial = ()=>{
-render(students.filter(s=>
-(s.total_paid||0)>0 &&
-(s.term_fee - (s.total_paid||0))>0
-));
+
+let term = getTerm("view_term");
+
+render(students.filter(s=>{
+let f = s.fees?.[term];
+return f && f.paid > 0 && f.balance > 0;
+}));
 };
 
 window.loadUnpaid = ()=>{
-render(students.filter(s=>(s.total_paid||0)==0));
+
+let term = getTerm("view_term");
+
+render(students.filter(s=>{
+let f = s.fees?.[term];
+return !f || f.paid === 0;
+}));
 };
-
-/* INCOME */
-async function loadIncome(){
-
-let snap = await getDocs(collection(db,"payments"));
-let total = 0;
-
-snap.forEach(d=>{
-total += d.data().amount_paid || 0;
-});
-
-document.getElementById("income").innerText =
-"💰 Total Income: MWK " + total;
-}
 
 /* INIT */
 loadStudents();
-loadIncome();
 
 </script>
 
