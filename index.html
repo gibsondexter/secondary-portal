@@ -4,77 +4,152 @@
 <title>School Login</title>
 
 <style>
-body{
-    font-family: Arial;
-    background:#f4f6f9;
+<style>
+
+*{
     margin:0;
     padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
 }
+
+body{
+    background:#f1f5f9;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+/* HEADER */
 
 .header{
-    text-align:center;
-    padding:20px;
+    width:100%;
     background:white;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    padding:25px 20px;
+    text-align:center;
+    border-bottom-left-radius:25px;
+    border-bottom-right-radius:25px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.08);
 }
 
-.header img{
+.header img#logo{
     width:90px;
     height:90px;
-    object-fit:contain;
-    margin-bottom:10px;
+    object-fit:cover;
+    border-radius:50%;
+    margin:auto;
+    margin-bottom:12px;
+    border:3px solid #2563eb;
 }
 
-.header h2{ margin:5px 0; }
-.header p{ margin:0; font-style:italic; color:#555; }
-
-.box{
-    width:90%;
-    max-width:380px;
-    margin:30px auto;
-    background:white;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
+.header h2{
+    font-size:24px;
+    color:#111827;
+    margin-bottom:5px;
 }
 
-input,button{
-    width:100%;
-    padding:14px;
-    margin:10px 0;
-    font-size:16px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
+.header p{
+    color:#6b7280;
+    font-size:15px;
 }
 
-button{
-    background:#2563eb;
-    color:white;
-    border:none;
-    cursor:pointer;
-    font-weight:bold;
-}
-
-#msg{
-    text-align:center;
-    margin-top:10px;
-    font-weight:bold;
-}
+/* WISDOM IMAGE */
 
 #wisdomImg{
     width:100%;
-    max-width:200px;
-    margin-top:10px;
+    max-width:220px;
+    border-radius:12px;
+    margin-top:15px;
 }
 
-@media (max-width: 600px){
-    .box{
-        margin:20px auto;
-        padding:20px;
-        width:92%;
-    }
+/* LOGIN BOX */
+
+.box{
+    width:92%;
+    max-width:400px;
+    background:white;
+    margin-top:25px;
+    padding:25px 20px;
+    border-radius:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
 }
+
+.box h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#111827;
+}
+
+/* INPUTS */
+
+input{
+    width:100%;
+    padding:15px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    margin-bottom:15px;
+    font-size:16px;
+    outline:none;
+    transition:0.3s;
+}
+
+input:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 5px rgba(37,99,235,0.3);
+}
+
+/* BUTTON */
+
+button{
+    width:100%;
+    padding:15px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+/* MESSAGE */
+
+#msg{
+    text-align:center;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+    .header{
+        padding:20px 15px;
+    }
+
+    .header h2{
+        font-size:21px;
+    }
+
+    .box{
+        padding:22px 18px;
+        margin-top:20px;
+    }
+
+    input,button{
+        font-size:15px;
+    }
+
+}
+
+</style>
 </style>
 </head>
 
