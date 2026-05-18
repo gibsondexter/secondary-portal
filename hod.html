@@ -1,226 +1,441 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>HOD Dashboard</title>
 
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <style>
-body{
-    font-family: Arial;
-    background:#f4f6f9;
+
+*{
     margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
 }
 
-/* TOP HEADER ONLY */
+body{
+    background:#eef2f7;
+    color:#111827;
+}
+
+/* HEADER */
+
 .header{
     background:#2563eb;
     color:white;
     padding:20px;
     text-align:center;
-    font-size:20px;
+    font-size:22px;
+    font-weight:bold;
 }
 
-/* SUB HEADER */
 .subheader{
     text-align:center;
-    padding:10px;
+    padding:12px;
     background:#1d4ed8;
     color:white;
     font-size:14px;
 }
 
-/* CONTENT AREA */
+/* CONTAINER */
+
 .container{
-    width:1100px;
+    width:100%;
+    max-width:1200px;
     margin:auto;
-    padding:20px;
+    padding:15px;
 }
 
-/* CARDS */
+/* GRID */
+
 .grid{
     display:grid;
-    grid-template-columns: repeat(3,1fr);
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
     gap:15px;
-    margin-top:20px;
+    margin-bottom:18px;
 }
+
+/* BOX */
 
 .box{
     background:white;
-    padding:15px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
-    text-align:center;
+    padding:16px;
+    border-radius:18px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    margin-bottom:18px;
 }
 
+/* HEADINGS */
+
 h3{
-    margin:5px 0;
+    margin-bottom:12px;
+    color:#111827;
+}
+
+/* FILTERS */
+
+.filters{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+}
+
+select{
+    width:100%;
+    padding:13px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    background:#f9fafb;
+    font-size:14px;
+    outline:none;
 }
 
 /* TABLE */
+
+.table-wrap{
+    width:100%;
+    overflow-x:auto;
+}
+
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:10px;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:center;
+    min-width:800px;
 }
 
 th{
     background:#2563eb;
     color:white;
+    padding:10px;
+    font-size:13px;
 }
+
+td{
+    padding:10px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:center;
+    font-size:13px;
+}
+
+/* CARDS */
+
+.card-number{
+    font-size:30px;
+    font-weight:bold;
+    color:#2563eb;
+    margin-top:10px;
+}
+
+/* FOOTER */
+
+.footer{
+    text-align:center;
+    padding:20px;
+    color:#6b7280;
+    font-size:13px;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+.header{
+    font-size:18px;
+    padding:16px;
+}
+
+.subheader{
+    font-size:13px;
+}
+
+table{
+    min-width:700px;
+}
+
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- 🔵 TOP WELCOME HEADER -->
+<!-- HEADER -->
+
 <div class="header" id="welcome">
-    Loading...
+Loading...
 </div>
 
 <div class="subheader" id="department">
-    Department loading...
+Department loading...
 </div>
 
-<!-- DASHBOARD CONTENT -->
 <div class="container">
 
+<!-- FILTERS -->
+
+<div class="box">
+
+<h3>⚙️ Filter Academic Records</h3>
+
+<div class="filters">
+
+<select id="yearFilter">
+
+<option value="2026/2027">2026/2027</option>
+<option value="2027/2028">2027/2028</option>
+<option value="2028/2029">2028/2029</option>
+
+</select>
+
+<select id="termFilter">
+
+<option value="Term 1">Term 1</option>
+<option value="Term 2">Term 2</option>
+<option value="Term 3">Term 3</option>
+
+</select>
+
+<!-- NEW SECTION FILTER -->
+
+<select id="sectionFilter">
+
+<option value="All">All Sections</option>
+<option value="Day">Day</option>
+<option value="Boarding">Boarding</option>
+
+</select>
+
+</div>
+
+</div>
+
 <!-- STATS -->
+
 <div class="grid">
 
 <div class="box">
 <h3>🎓 Students</h3>
-<h2 id="studentsCount">0</h2>
+<div class="card-number" id="studentsCount">0</div>
 </div>
 
 <div class="box">
 <h3>🧑‍🏫 Teachers</h3>
-<h2 id="teachersCount">0</h2>
+<div class="card-number" id="teachersCount">0</div>
 </div>
 
 <div class="box">
 <h3>📊 Pass Rate</h3>
-<h2 id="passRate">0%</h2>
+<div class="card-number" id="passRate">0%</div>
 </div>
 
 </div>
 
 <!-- TEACHERS -->
+
 <div class="box">
+
 <h3>🧑‍🏫 Teachers in Department</h3>
+
+<div class="table-wrap">
+
 <table>
+
+<thead>
 <tr>
 <th>Name</th>
 <th>Subject</th>
 <th>Class</th>
+<th>Section</th>
 </tr>
+</thead>
+
 <tbody id="teachers"></tbody>
+
 </table>
+
+</div>
+
 </div>
 
 <!-- STUDENTS -->
+
 <div class="box">
+
 <h3>🎓 Students</h3>
+
+<div class="table-wrap">
+
 <table>
+
+<thead>
 <tr>
 <th>Name</th>
 <th>Reg No</th>
 <th>Class</th>
+<th>Section</th>
 <th>Balance</th>
 </tr>
+</thead>
+
 <tbody id="students"></tbody>
+
 </table>
+
+</div>
+
 </div>
 
 <!-- PERFORMANCE -->
+
 <div class="box">
+
 <h3>📊 Performance</h3>
+
+<div class="table-wrap">
+
 <table>
+
+<thead>
 <tr>
 <th>Student</th>
 <th>Subject</th>
 <th>Score</th>
 <th>Grade</th>
+<th>Class</th>
+<th>Section</th>
+<th>Term</th>
+<th>Year</th>
 <th>Remarks</th>
 </tr>
+</thead>
+
 <tbody id="performance"></tbody>
+
 </table>
+
 </div>
 
+</div>
+
+</div>
+
+<div class="footer">
+Developed By Dexter Gibson
 </div>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
 import {
 getFirestore,
 doc,
 getDoc,
 collection,
-getDocs
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+getDocs,
+query,
+where
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/* FIREBASE */
 
 const firebaseConfig = {
+
 apiKey: "YOUR_KEY",
+
 authDomain: "secondary-dexter-system.firebaseapp.com",
+
 projectId: "secondary-dexter-system",
+
 storageBucket: "secondary-dexter-system.firebasestorage.app",
+
 messagingSenderId: "858654232789",
+
 appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+
 };
 
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 /* LOGIN */
-let hod_id = localStorage.getItem("hod_id");
-
-/* ================= HEADER ONLY ================= */
-async function loadHOD(){
 
 let hod_id = localStorage.getItem("officer_id");
 
+/* ================= HOD ================= */
+
+async function loadHOD(){
+
 if(!hod_id){
-document.getElementById("welcome").innerText = "No HOD logged in";
+
+document.getElementById("welcome").innerText =
+"No HOD logged in";
+
 return;
+
 }
 
-let snap = await getDoc(doc(db,"officers", hod_id));
+let snap = await getDoc(doc(db,"officers",hod_id));
 
 if(!snap.exists()){
-document.getElementById("welcome").innerText = "HOD not found";
+
+document.getElementById("welcome").innerText =
+"HOD not found";
+
 return;
+
 }
 
 let d = snap.data();
 
-/* CHECK ROLE (VERY IMPORTANT) */
 if(d.role !== "Head of Department"){
-document.getElementById("welcome").innerText = "Access denied";
+
+document.getElementById("welcome").innerText =
+"Access denied";
+
 return;
+
 }
 
-/* DISPLAY */
 document.getElementById("welcome").innerText =
 `👋 Welcome Mr/Ms ${d.full_name}`;
 
 document.getElementById("department").innerText =
 `Head of Department - ${d.department}`;
+
 }
+
 /* ================= TEACHERS ================= */
+
 async function loadTeachers(){
 
-let snap = await getDocs(collection(db,"teacher_assignments"));
+let section =
+document.getElementById("sectionFilter").value;
+
+let snap =
+await getDocs(collection(db,"teacher_assignments"));
 
 let rows = "";
 let count = 0;
 
-snap.forEach(d => {
-let x = d.data();
+snap.forEach(docu=>{
+
+let x = docu.data();
+
+if(section !== "All"){
+
+if((x.section || "Day") !== section){
+return;
+}
+
+}
+
 count++;
 
 rows += `
@@ -228,74 +443,197 @@ rows += `
 <td>${x.teacher_username || "-"}</td>
 <td>${x.subject || "-"}</td>
 <td>${x.form || "-"}</td>
-</tr>`;
+<td>${x.section || "Day"}</td>
+</tr>
+`;
+
 });
 
 document.getElementById("teachers").innerHTML = rows;
-document.getElementById("teachersCount").innerText = count;
+
+document.getElementById("teachersCount").innerText =
+count;
+
 }
 
 /* ================= STUDENTS ================= */
+
 async function loadStudents(){
 
-let snap = await getDocs(collection(db,"students"));
+let section =
+document.getElementById("sectionFilter").value;
+
+let snap =
+await getDocs(collection(db,"students"));
 
 let rows = "";
 let count = 0;
 
-snap.forEach(d => {
-    let s = d.data();
-    count++;
+snap.forEach(docu=>{
 
-    rows += `
-    <tr>
-        <td>${s.full_name}</td>
-        <td>${s.reg_no}</td>
-        <td>${s.form}</td>
-        <td>${s.fees_balance || 0}</td>
-    </tr>`;
+let s = docu.data();
+
+if(section !== "All"){
+
+if((s.section || "Day") !== section){
+return;
+}
+
+}
+
+count++;
+
+let balance =
+Number(s.fees_balance || 0);
+
+rows += `
+<tr>
+<td>${s.full_name || "-"}</td>
+<td>${s.reg_no || "-"}</td>
+<td>${s.form || "-"}</td>
+<td>${s.section || "Day"}</td>
+<td>MWK ${balance}</td>
+</tr>
+`;
+
 });
 
-document.getElementById("students").innerHTML = rows;
-document.getElementById("studentsCount").innerText = count;
+document.getElementById("students").innerHTML =
+rows;
+
+document.getElementById("studentsCount").innerText =
+count;
+
 }
 
 /* ================= PERFORMANCE ================= */
+
 async function loadPerformance(){
 
-let snap = await getDocs(collection(db,"assessments"));
+let selectedTerm =
+document.getElementById("termFilter").value;
+
+let selectedYear =
+document.getElementById("yearFilter").value;
+
+let selectedSection =
+document.getElementById("sectionFilter").value;
+
+let q = query(
+
+collection(db,"assessments"),
+
+where("term","==",selectedTerm),
+
+where("academic_year","==",selectedYear)
+
+);
+
+let snap = await getDocs(q);
 
 let rows = "";
+
 let pass = 0;
 let total = 0;
 
-snap.forEach(d => {
-    let x = d.data();
-    total++;
+snap.forEach(docu=>{
 
-    if(x.score >= 50) pass++;
+let x = docu.data();
 
-    rows += `
-    <tr>
-        <td>${x.reg_no}</td>
-        <td>${x.subject}</td>
-        <td>${x.score}</td>
-        <td>${x.grade}</td>
-        <td>${x.remarks || "-"}</td>
-    </tr>`;
-});
+if(selectedSection !== "All"){
 
-document.getElementById("performance").innerHTML = rows;
-
-let rate = total ? Math.round((pass/total)*100) : 0;
-document.getElementById("passRate").innerText = rate + "%";
+if((x.section || "Day") !== selectedSection){
+return;
 }
 
-/* INIT */
-loadHOD();
-loadTeachers();
-loadStudents();
-loadPerformance();
+}
+
+total++;
+
+if(Number(x.score) >= 50){
+pass++;
+}
+
+let remark = "";
+
+if(x.score >= 75) remark = "Excellent";
+else if(x.score >= 65) remark = "Very Good";
+else if(x.score >= 50) remark = "Good";
+else if(x.score >= 40) remark = "Average";
+else remark = "Poor";
+
+rows += `
+<tr>
+<td>${x.reg_no || "-"}</td>
+<td>${x.subject || "-"}</td>
+<td>${x.score || 0}</td>
+<td>${x.grade || "-"}</td>
+<td>${x.form || "-"}</td>
+<td>${x.section || "Day"}</td>
+<td>${x.term || "-"}</td>
+<td>${x.academic_year || "-"}</td>
+<td>${remark}</td>
+</tr>
+`;
+
+});
+
+if(rows === ""){
+
+rows = `
+<tr>
+<td colspan="9">
+No records found
+</td>
+</tr>
+`;
+
+}
+
+document.getElementById("performance").innerHTML =
+rows;
+
+let rate = total
+? Math.round((pass/total)*100)
+: 0;
+
+document.getElementById("passRate").innerText =
+rate + "%";
+
+}
+
+/* ================= FILTER EVENTS ================= */
+
+document.getElementById("termFilter")
+.addEventListener("change",refreshDashboard);
+
+document.getElementById("yearFilter")
+.addEventListener("change",refreshDashboard);
+
+document.getElementById("sectionFilter")
+.addEventListener("change",refreshDashboard);
+
+/* ================= REFRESH ================= */
+
+async function refreshDashboard(){
+
+await loadTeachers();
+
+await loadStudents();
+
+await loadPerformance();
+
+}
+
+/* ================= INIT ================= */
+
+(async ()=>{
+
+await loadHOD();
+
+await refreshDashboard();
+
+})();
 
 </script>
 
