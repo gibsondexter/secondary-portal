@@ -1,132 +1,232 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Accounts Dashboard (Term System)</title>
+
+<title>Accounts Dashboard (Academic Year + Term System)</title>
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
-body{
-    font-family: Arial;
-    background:#f4f6f9;
+
+*{
     margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#eef2f7;
+    color:#111827;
+    padding:12px;
 }
 
 .container{
-    width:900px;
+    width:100%;
+    max-width:1100px;
     margin:auto;
-    padding:20px;
 }
 
 .box{
     background:white;
-    padding:15px;
-    margin:10px 0;
-    border-radius:10px;
-    box-shadow:0 0 10px #ccc;
+    padding:16px;
+    margin-bottom:16px;
+    border-radius:18px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
 
-input,select,button{
+h2{
+    text-align:center;
+    margin-bottom:16px;
+    color:#2563eb;
+}
+
+h3{
+    margin-bottom:14px;
+    color:#111827;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+}
+
+input, select{
     width:100%;
-    padding:10px;
-    margin:5px 0;
+    padding:14px;
+    margin-bottom:12px;
+    border:1px solid #d1d5db;
+    border-radius:12px;
+    background:#f9fafb;
+    font-size:15px;
+    outline:none;
 }
 
 button{
+    width:100%;
+    padding:13px;
     border:none;
-    cursor:pointer;
+    border-radius:12px;
     color:white;
+    font-weight:bold;
+    cursor:pointer;
+    margin-bottom:10px;
 }
 
-.green{background:#16a34a;}
 .blue{background:#2563eb;}
+.green{background:#16a34a;}
 .orange{background:#f59e0b;}
 .red{background:#dc2626;}
+
+.table-wrap{width:100%; overflow-x:auto;}
 
 table{
     width:100%;
     border-collapse:collapse;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:8px;
-    text-align:center;
+    min-width:800px;
 }
 
 th{
     background:#2563eb;
     color:white;
+    padding:10px;
+    font-size:13px;
 }
+
+td{
+    padding:10px;
+    border-bottom:1px solid #e5e7eb;
+    text-align:center;
+    font-size:13px;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h2 style="text-align:center;">💰 ACCOUNTS DASHBOARD (TERM SYSTEM)</h2>
+<h2>💰 ACCOUNTS DASHBOARD</h2>
 
 <div class="container">
 
 <!-- SET FEES -->
 <div class="box">
-<h3>📌 Set Term Fee (ALL Students)</h3>
+<h3>📌 Set Academic Year & Term Fee</h3>
+
+<div class="grid">
+
+<select id="academic_year">
+<option value="2026/2027">2026/2027</option>
+<option value="2027/2028">2027/2028</option>
+<option value="2028/2029">2028/2029</option>
+</select>
 
 <select id="set_term">
-<option>Term 1</option>
-<option>Term 2</option>
-<option>Term 3</option>
+<option value="Term 1">Term 1</option>
+<option value="Term 2">Term 2</option>
+<option value="Term 3">Term 3</option>
+</select>
+
+<select id="set_section">
+<option value="Day">Day</option>
+<option value="Boarding">Boarding</option>
 </select>
 
 <input id="term_fee" type="number" placeholder="Enter Term Fee (MWK)">
-<button class="blue" onclick="setFee()">Set Fee for All</button>
 
-<p id="msg"></p>
 </div>
 
-<!-- PAYMENT -->
+<button class="blue" onclick="setFee()">Set Fee For All Students</button>
+
+</div>
+
+<!-- RECORD PAYMENT -->
 <div class="box">
 <h3>💵 Record Payment</h3>
 
+<div class="grid">
+
 <input id="reg" placeholder="Student Reg No">
 
+<select id="payment_year">
+<option value="2026/2027">2026/2027</option>
+<option value="2027/2028">2027/2028</option>
+<option value="2028/2029">2028/2029</option>
+</select>
+
 <select id="payment_term">
-<option>Term 1</option>
-<option>Term 2</option>
-<option>Term 3</option>
+<option value="Term 1">Term 1</option>
+<option value="Term 2">Term 2</option>
+<option value="Term 3">Term 3</option>
+</select>
+
+<select id="payment_section">
+<option value="Day">DAY</option>
+<option value="Boarding">OPEN</option>
 </select>
 
 <input id="amount" type="number" placeholder="Amount Paid">
-<button class="green" onclick="recordPayment()">Save Payment</button>
+
 </div>
 
-<!-- VIEW TERM -->
+<button class="green" onclick="recordPayment()">Save Payment</button>
+
+</div>
+
+<!-- VIEW FILTER -->
 <div class="box">
-<h3>📊 View Students by Term</h3>
+<h3>📊 View Filters</h3>
+
+<div class="grid">
+
+<select id="view_year" onchange="render(students)">
+<option value="2026/2027">2026/2027</option>
+<option value="2027/2028">2027/2028</option>
+<option value="2028/2029">2028/2029</option>
+</select>
 
 <select id="view_term" onchange="render(students)">
-<option>Term 1</option>
-<option>Term 2</option>
-<option>Term 3</option>
+<option value="Term 1">Term 1</option>
+<option value="Term 2">Term 2</option>
+<option value="Term 3">Term 3</option>
+</select>
+
+<select id="view_section" onchange="render(students)">
+<option value="Day">Day</option>
+<option value="Boarding">Boarding</option>
 </select>
 
 </div>
+</div>
 
-<!-- FILTERS -->
+<!-- FILTER BUTTONS -->
 <div class="box">
+<div class="grid">
 
-<button class="blue" onclick="loadAll()">All</button>
+<button class="blue" onclick="loadAll()">All Students</button>
 <button class="green" onclick="loadPaid()">Fully Paid</button>
 <button class="orange" onclick="loadPartial()">Partial</button>
 <button class="red" onclick="loadUnpaid()">Unpaid</button>
 
 </div>
+</div>
 
 <!-- TABLE -->
 <div class="box">
+<div class="table-wrap">
 
 <table>
+
 <thead>
 <tr>
 <th>Name</th>
 <th>Reg No</th>
+<th>Year</th>
+<th>Term</th>
+<th>Section</th>
 <th>Fee</th>
 <th>Paid</th>
 <th>Balance</th>
@@ -134,8 +234,10 @@ th{
 </thead>
 
 <tbody id="data"></tbody>
+
 </table>
 
+</div>
 </div>
 
 </div>
@@ -143,14 +245,8 @@ th{
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-
-import {
-getFirestore,
-collection,
-getDocs,
-updateDoc,
-doc
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, updateDoc, doc }
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
 apiKey: "YOUR_KEY",
@@ -166,47 +262,47 @@ const db = getFirestore(app);
 
 let students = [];
 
-/* LOAD STUDENTS */
 async function loadStudents(){
-
 let snap = await getDocs(collection(db,"students"));
-
 students = [];
 
 snap.forEach(d=>{
-students.push({id:d.id,...d.data()});
+students.push({id:d.id, ...d.data()});
 });
 
 render(students);
 }
 
-/* GET TERM */
-function getTerm(id){
+function getValue(id){
 return document.getElementById(id).value;
 }
 
-/* RENDER */
 function render(data){
 
-let term = getTerm("view_term");
+let year = getValue("view_year");
+let term = getValue("view_term");
+let section = getValue("view_section");
 
 let rows = "";
 
 data.forEach(s=>{
 
-let feeData = s.fees?.[term] || {};
+let finance = s.finance?.[year]?.[term]?.[section] || {};
 
-let fee = feeData.fee || 0;
-let paid = feeData.paid || 0;
+let fee = finance.fee || 0;
+let paid = finance.paid || 0;
 let balance = fee - paid;
 
 rows += `
 <tr>
-<td>${s.full_name}</td>
-<td>${s.reg_no}</td>
-<td>${fee}</td>
-<td>${paid}</td>
-<td>${balance}</td>
+<td>${s.full_name || "-"}</td>
+<td>${s.reg_no || "-"}</td>
+<td>${year}</td>
+<td>${term}</td>
+<td>${section}</td>
+<td>MWK ${fee}</td>
+<td>MWK ${paid}</td>
+<td>MWK ${balance}</td>
 </tr>
 `;
 });
@@ -214,11 +310,13 @@ rows += `
 document.getElementById("data").innerHTML = rows;
 }
 
-/* SET FEE FOR ALL */
+/* SET FEE */
 window.setFee = async function(){
 
-let term = getTerm("set_term");
-let fee = Number(document.getElementById("term_fee").value);
+let year = getValue("academic_year");
+let term = getValue("set_term");
+let section = getValue("set_section");
+let fee = Number(getValue("term_fee"));
 
 if(!fee || fee <= 0){
 alert("Enter valid fee");
@@ -227,32 +325,35 @@ return;
 
 for(let s of students){
 
-let fees = s.fees || {};
+let finance = s.finance || {};
+if(!finance[year]) finance[year] = {};
+if(!finance[year][term]) finance[year][term] = {};
+if(!finance[year][term][section]) finance[year][term][section] = {};
 
-fees[term] = {
+finance[year][term][section] = {
 fee: fee,
 paid: 0,
 balance: fee
 };
 
-await updateDoc(doc(db,"students",s.id),{
-fees: fees
-});
+await updateDoc(doc(db,"students",s.id),{finance});
 }
 
-document.getElementById("msg").innerText = "Fees set successfully ✔";
-
+alert("Fee set successfully");
 loadStudents();
 };
 
-/* RECORD PAYMENT WITH OVERPAYMENT CHECK */
+/* RECORD PAYMENT */
 window.recordPayment = async function(){
 
-let reg = document.getElementById("reg").value;
-let amount = Number(document.getElementById("amount").value);
-let term = getTerm("payment_term");
+let reg = getValue("reg");
+let amount = Number(getValue("amount"));
 
-if(!reg || !amount || amount <= 0){
+let year = getValue("payment_year");
+let term = getValue("payment_term");
+let section = getValue("payment_section");
+
+if(!reg || !amount){
 alert("Enter valid data");
 return;
 }
@@ -261,32 +362,30 @@ for(let s of students){
 
 if(s.reg_no === reg){
 
-let fees = s.fees || {};
+let finance = s.finance || {};
 
-let fee = fees[term]?.fee || 0;
-let paid = fees[term]?.paid || 0;
+if(!finance[year]) finance[year] = {};
+if(!finance[year][term]) finance[year][term] = {};
+if(!finance[year][term][section])
+finance[year][term][section] = {fee:0,paid:0,balance:0};
+
+let fee = finance[year][term][section].fee || 0;
+let paid = finance[year][term][section].paid || 0;
 let balance = fee - paid;
 
-// ❌ OVERPAYMENT CHECK
 if(amount > balance){
-alert("❌ Payment exceeds balance! Remaining: MWK " + balance);
+alert("Overpayment. Balance: MWK " + balance);
 return;
 }
 
 paid += amount;
 balance = fee - paid;
 
-fees[term] = {
-fee: fee,
-paid: paid,
-balance: balance
-};
+finance[year][term][section] = {fee,paid,balance};
 
-await updateDoc(doc(db,"students",s.id),{
-fees: fees
-});
+await updateDoc(doc(db,"students",s.id),{finance});
 
-alert("✅ Payment recorded");
+alert("Payment recorded");
 }
 }
 
@@ -297,36 +396,29 @@ loadStudents();
 window.loadAll = ()=>render(students);
 
 window.loadPaid = ()=>{
-
-let term = getTerm("view_term");
-
+let y=getValue("view_year"), t=getValue("view_term");
 render(students.filter(s=>{
-let f = s.fees?.[term];
-return f && f.balance <= 0;
+let f=s.finance?.[y]?.[t];
+return f && f.balance<=0;
 }));
 };
 
 window.loadPartial = ()=>{
-
-let term = getTerm("view_term");
-
+let y=getValue("view_year"), t=getValue("view_term");
 render(students.filter(s=>{
-let f = s.fees?.[term];
-return f && f.paid > 0 && f.balance > 0;
+let f=s.finance?.[y]?.[t];
+return f && f.paid>0 && f.balance>0;
 }));
 };
 
 window.loadUnpaid = ()=>{
-
-let term = getTerm("view_term");
-
+let y=getValue("view_year"), t=getValue("view_term");
 render(students.filter(s=>{
-let f = s.fees?.[term];
-return !f || f.paid === 0;
+let f=s.finance?.[y]?.[t];
+return !f || f.paid===0;
 }));
 };
 
-/* INIT */
 loadStudents();
 
 </script>
