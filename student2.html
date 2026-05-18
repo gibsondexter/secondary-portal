@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html>
 <head>
 
 <title>Student Dashboard</title>
@@ -81,15 +83,21 @@ h3{
     color:#1e293b;
 }
 
-/* TERM FILTER */
+/* FILTERS */
 
-#termFilter{
+.filters{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-bottom:16px;
+}
+
+.filters select{
     width:100%;
     padding:14px;
     border:none;
     border-radius:12px;
     background:white;
-    margin-bottom:16px;
     font-size:15px;
     box-shadow:0 2px 10px rgba(0,0,0,0.06);
     outline:none;
@@ -152,6 +160,44 @@ td{
     color:#b91c1c;
 }
 
+/* STUDENT SECTION */
+
+#studentSection{
+    margin-bottom:16px;
+    background:linear-gradient(135deg,#16a34a,#15803d);
+    color:white;
+    text-align:center;
+}
+
+#studentSection h3{
+    color:white;
+    margin-bottom:8px;
+}
+
+.studentBadge{
+    display:inline-block;
+    padding:8px 14px;
+    border-radius:30px;
+    background:rgba(255,255,255,0.2);
+    margin-top:10px;
+    font-size:13px;
+}
+
+.footer{
+    text-align:center;
+    padding:15px;
+    color:#64748b;
+    font-size:13px;
+}
+
+@media(max-width:600px){
+
+.filters{
+    grid-template-columns:1fr;
+}
+
+}
+
 </style>
 
 </head>
@@ -160,51 +206,91 @@ td{
 
 <div class="container">
 
-<!-- TERM FILTER -->
-<select id="termFilter">
-    <option value="Term 1">Term 1</option>
-    <option value="Term 2">Term 2</option>
-    <option value="Term 3">Term 3</option>
+<!-- STUDENT SECTION -->
+<div class="box" id="studentSection">
+
+<h3>👨‍🎓 Student Section</h3>
+
+<div id="studentWelcome">
+Loading student...
+</div>
+
+<div class="studentBadge" id="studentClassBadge">
+Class Loading...
+</div>
+
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+
+<select id="academicYearFilter">
+<option value="">Loading Years...</option>
 </select>
 
-<!-- TOP HEADER -->
+<select id="termFilter">
+<option value="Term 1">Term 1</option>
+<option value="Term 2">Term 2</option>
+<option value="Term 3">Term 3</option>
+</select>
+
+</div>
+
+<!-- SCHOOL HEADER -->
 <div class="box" id="schoolHeader">
 Loading academic info...
 </div>
 
 <!-- REPORT -->
 <div class="box" id="reportBox">
-    <h2>🎓 Student Dashboard</h2>
 
-    <h3>📊 Report Card</h3>
+<h2>🎓 Student Dashboard</h2>
 
-    <div id="studentInfo" style="line-height:1.6;margin-bottom:10px;"></div>
+<h3>📊 Report Card</h3>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Subject</th>
-                <th>Score</th>
-                <th>Grade</th>
-                <th>Teacher</th>
-                <th>Remarks</th>
-            </tr>
-        </thead>
-        <tbody id="report"></tbody>
-    </table>
+<div id="studentInfo"></div>
 
-    <div id="schoolName"></div>
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Subject</th>
+<th>Score</th>
+<th>Grade</th>
+<th>Teacher</th>
+<th>Remarks</th>
+</tr>
+</thead>
+
+<tbody id="report"></tbody>
+
+</table>
+
 </div>
 
+<div id="schoolName"></div>
+
+</div>
+
+<!-- FEES -->
 <div class="box" id="fees"></div>
 
-<div class="box" id="warning" style="display:none;color:red;font-weight:bold;"></div>
+<!-- WARNING -->
+<div class="box" id="warning" style="display:none;"></div>
+
+<div class="footer">
+Developed By Dexter Gibson
+</div>
 
 </div>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
 import {
 getFirestore,
 collection,
@@ -213,112 +299,267 @@ where,
 getDocs,
 getDoc,
 doc
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
+
 apiKey: "AIzaSyDjc2AAHQEMUN28zsXJIEIdWvniGUg84Wc",
+
 authDomain: "secondary-dexter-system.firebaseapp.com",
+
 projectId: "secondary-dexter-system",
+
 storageBucket: "secondary-dexter-system.firebasestorage.app",
+
 messagingSenderId: "858654232789",
+
 appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+
 };
 
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 const reg_no = localStorage.getItem("reg_no");
 
 /* ================= EXAM RELEASE ================= */
+
 async function checkExamRelease(){
-let snap = await getDoc(doc(db,"settings","exam_control"));
+
+let snap =
+await getDoc(doc(db,"settings","exam_control"));
+
 if(!snap.exists()) return true;
+
 return snap.data().released === true;
+
 }
 
 /* ================= REMARKS ================= */
+
 function getRemark(score){
+
 if(score >= 75) return "Excellent";
 if(score >= 65) return "Very Good";
 if(score >= 50) return "Good";
 if(score >= 40) return "Average";
+
 return "Poor";
+
 }
 
 /* ================= GRADING ================= */
+
 function getGrade(score, form){
+
 if(form === "Form1" || form === "Form2"){
+
 if(score >= 75) return "A";
 if(score >= 65) return "B";
 if(score >= 50) return "C";
 if(score >= 40) return "D";
+
 return "F";
+
 }else{
-if(score >= 75) return "1";
-if(score >= 65) return "2";
-if(score >= 50) return "3";
-if(score >= 45) return "4";
-if(score >= 40) return "5";
-if(score >= 35) return "6";
-if(score >= 30) return "8";
+
+if(score >= 85) return "1";
+if(score >= 84) return "2";
+if(score >= 75) return "3";
+if(score >= 65) return "4";
+if(score >= 55) return "5";
+if(score >= 50) return "6";
+if(score >= 45) return "7";
+if(score >= 40) return "8";
+
 return "9 (FAIL)";
-}
+
 }
 
-/* ================= PROFILE ================= */
+}
+
+/* ================= LOAD YEARS ================= */
+
+async function loadAcademicYears(){
+
+let snap = await getDocs(collection(db,"assessments"));
+
+let years = [];
+
+snap.forEach(d=>{
+
+let year = d.data().academic_year;
+
+if(year && !years.includes(year)){
+years.push(year);
+}
+
+});
+
+years.sort().reverse();
+
+let select =
+document.getElementById("academicYearFilter");
+
+select.innerHTML = "";
+
+if(years.length === 0){
+
+select.innerHTML =
+`<option value="2026/2027">2026/2027</option>`;
+
+return;
+
+}
+
+years.forEach(y=>{
+
+select.innerHTML +=
+`<option value="${y}">${y}</option>`;
+
+});
+
+}
+
+/* ================= LOAD PROFILE ================= */
+
 async function loadProfile(){
 
 if(!reg_no){
-document.getElementById("warning").style.display = "block";
-document.getElementById("warning").innerText = "⚠️ Login required.";
+
+document.getElementById("warning").style.display =
+"block";
+
+document.getElementById("warning").innerText =
+"⚠️ Login required.";
+
 return null;
+
 }
 
-let snap = await getDocs(query(collection(db,"students"), where("reg_no","==",reg_no)));
+let snap = await getDocs(
+
+query(
+collection(db,"students"),
+where("reg_no","==",reg_no)
+)
+
+);
 
 if(snap.empty){
-document.getElementById("warning").style.display = "block";
-document.getElementById("warning").innerText = "⚠️ Student not found.";
+
+document.getElementById("warning").style.display =
+"block";
+
+document.getElementById("warning").innerText =
+"⚠️ Student not found.";
+
 return null;
+
 }
 
 let student = snap.docs[0].data();
 
-let selectedTerm = document.getElementById("termFilter").value;
+/* ================= SHOW STUDENT SECTION ================= */
 
-let feeData = student.fees?.[selectedTerm] || {};
+document.getElementById("studentWelcome").innerHTML = `
 
-let fee = feeData.fee || 0;
-let paid = feeData.paid || 0;
-let balance = feeData.balance || (fee - paid);
+<b>${student.full_name}</b><br>
+Registration Number: ${student.reg_no}
+
+`;
+
+document.getElementById("studentClassBadge").innerHTML = `
+
+📚 ${student.form || "No Class"} | 
+📅 ${student.day || "Day"}
+
+`;
+
+/* ================= FEES ================= */
+
+let selectedTerm =
+document.getElementById("termFilter").value;
+
+let selectedYear =
+document.getElementById("academicYearFilter").value;
+
+let feeData =
+student.fees?.[selectedYear]?.[selectedTerm] || {};
+
+let fee = Number(feeData.fee || 0);
+
+let paid = Number(feeData.paid || 0);
+
+let balance =
+Number(feeData.balance || (fee - paid));
 
 document.getElementById("fees").innerHTML = `
+
 <h3>💰 Fees Summary</h3>
+
+Academic Year: ${selectedYear}<br>
+
+Term: ${selectedTerm}<br><br>
+
 Total Fee: MWK ${fee}<br>
+
 Paid: MWK ${paid}<br>
+
 Balance: MWK ${balance}
+
 `;
 
 if(balance > 0){
-document.getElementById("reportBox").style.display = "none";
-document.getElementById("warning").style.display = "block";
+
+document.getElementById("reportBox").style.display =
+"none";
+
+document.getElementById("warning").style.display =
+"block";
+
 document.getElementById("warning").innerHTML =
-`⚠️ You cannot view report card due to balance MWK ${balance}`;
+
+`⚠️ You cannot view report card due to balance of MWK ${balance}`;
+
 return null;
+
 }
 
+document.getElementById("warning").style.display =
+"none";
+
+document.getElementById("reportBox").style.display =
+"block";
+
 return student;
+
 }
 
 /* ================= REPORT ================= */
+
 async function loadReport(student){
 
 if(!student) return;
 
-let selectedTerm = document.getElementById("termFilter").value;
+let selectedTerm =
+document.getElementById("termFilter").value;
+
+let selectedYear =
+document.getElementById("academicYearFilter").value;
 
 /* POSITION */
-let studentsSnap = await getDocs(query(collection(db,"students"), where("form","==",student.form)));
+
+let studentsSnap = await getDocs(
+
+query(
+collection(db,"students"),
+where("form","==",student.form)
+)
+
+);
 
 let results = [];
 
@@ -326,103 +567,190 @@ for(let sDoc of studentsSnap.docs){
 
 let s = sDoc.data();
 
-let assessSnap = await getDocs(query(
+let assessSnap = await getDocs(
+
+query(
 collection(db,"assessments"),
 where("reg_no","==",s.reg_no),
-where("term","==",selectedTerm)
-));
+where("term","==",selectedTerm),
+where("academic_year","==",selectedYear)
+)
+
+);
 
 let total = 0;
-assessSnap.forEach(a => total += a.data().score || 0);
 
-results.push({ reg_no: s.reg_no, total });
+assessSnap.forEach(a=>{
+
+total += Number(a.data().score || 0);
+
+});
+
+results.push({
+
+reg_no:s.reg_no,
+total
+
+});
+
 }
 
 results.sort((a,b)=>b.total-a.total);
 
-let pos = results.findIndex(x=>x.reg_no===student.reg_no)+1;
+let pos =
+results.findIndex(x=>x.reg_no===student.reg_no)+1;
 
 /* INFO */
+
 document.getElementById("studentInfo").innerHTML = `
+
 <b>Name:</b> ${student.full_name}<br>
+
 <b>Class:</b> ${student.form}<br>
+
+<b>Section:</b> ${student.day || "Day"}<br>
+
+<b>Academic Year:</b> ${selectedYear}<br>
+
 <b>Term:</b> ${selectedTerm}<br>
+
 <b>Position:</b> ${pos}/${results.length}
+
 `;
 
 /* SUBJECTS */
-let subjectsSnap = await getDocs(collection(db,"subjects"));
 
-let assessSnap = await getDocs(query(
+let subjectsSnap =
+await getDocs(collection(db,"subjects"));
+
+let assessSnap = await getDocs(
+
+query(
 collection(db,"assessments"),
 where("reg_no","==",student.reg_no),
-where("term","==",selectedTerm)
-));
+where("term","==",selectedTerm),
+where("academic_year","==",selectedYear)
+)
+
+);
 
 let map = {};
+
 assessSnap.forEach(d=>{
-map[d.data().subject] = d.data();
+
+let x = d.data();
+
+map[x.subject] = x;
+
 });
 
 let rows = "";
 
-subjectsSnap.forEach(doc=>{
-let sub = doc.data().name;
+subjectsSnap.forEach(docu=>{
+
+let sub = docu.data().name;
+
 let a = map[sub] || {};
+
 let score = a.score || 0;
 
 rows += `
+
 <tr>
+
 <td>${sub}</td>
+
 <td>${score}</td>
+
 <td>${getGrade(score,student.form)}</td>
+
 <td>${a.teacher || "-"}</td>
+
 <td>${getRemark(score)}</td>
-</tr>`;
+
+</tr>
+
+`;
+
 });
 
-document.getElementById("report").innerHTML = rows;
+document.getElementById("report").innerHTML =
+rows;
+
 }
 
 /* ================= SCHOOL ================= */
+
 async function loadSchool(){
 
-let snap = await getDocs(collection(db,"settings"));
+let snap =
+await getDoc(doc(db,"settings","school"));
 
-snap.forEach(d=>{
-let x = d.data();
+if(!snap.exists()) return;
+
+let x = snap.data();
 
 document.getElementById("schoolHeader").innerHTML =
-`Academic Year: ${x.academic_year || "2026"} | Term: ${x.term || "Term 1"}`;
+
+`Academic Year: ${x.academic_year || "2026/2027"}
+<br>
+Term: ${x.term || "Term 1"}`;
 
 document.getElementById("schoolName").innerHTML =
-`🏫 ${x.name || "School Name"}<br><i>${x.motto || ""}</i>`;
-});
+
+`🏫 ${x.name || "School Name"}
+<br>
+<i>${x.motto || ""}</i>
+<br>
+📞 ${x.contact || ""}`;
+
 }
 
-/* ================= INIT ================= */
-(async ()=>{
+/* ================= MAIN LOAD ================= */
+
+async function refreshDashboard(){
 
 let released = await checkExamRelease();
 
 if(!released){
+
 document.getElementById("reportBox").innerHTML =
-"<h2>❌ Exams not released yet by administration</h2>";
+
+`
+<h2>❌ Exams not released yet by administration</h2>
+`;
+
 loadSchool();
+
 return;
+
 }
 
 let student = await loadProfile();
+
 await loadReport(student);
+
+}
+
+/* ================= INIT ================= */
+
+(async ()=>{
+
+await loadAcademicYears();
+
+await refreshDashboard();
+
 loadSchool();
 
 })();
 
-/* ================= TERM CHANGE ================= */
-document.getElementById("termFilter").addEventListener("change", async ()=>{
-let student = await loadProfile();
-await loadReport(student);
-});
+/* ================= FILTER CHANGE ================= */
+
+document.getElementById("termFilter")
+.addEventListener("change",refreshDashboard);
+
+document.getElementById("academicYearFilter")
+.addEventListener("change",refreshDashboard);
 
 </script>
 
