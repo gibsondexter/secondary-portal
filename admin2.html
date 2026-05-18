@@ -144,9 +144,10 @@ h2{
 
 .container{
     width:100%;
-    display:grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap:15px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:60vh;
 }
 
 .box{
@@ -155,6 +156,8 @@ h2{
     border-radius:12px;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
     display:none;
+    width:100%;
+    max-width:500px;
 }
 
 .activeBox{
@@ -182,23 +185,23 @@ button:hover{
 }
 
 #msg{
-    grid-column: span 2;
     text-align:center;
     font-weight:bold;
+    margin-top:15px;
 }
 
 .viewBox{
-    grid-column: span 2;
     background:white;
     padding:15px;
     border-radius:12px;
+    margin-top:20px;
 }
 
 /* ================= TOP HEADER ================= */
 
 .topHeader{
     text-align:center;
-    background:white;
+    background:rgb(82, 109, 167);
     padding:20px;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
@@ -216,43 +219,9 @@ button:hover{
 
 .topHeader p{
     margin:0;
-    color:gray;
+    color:rgb(65, 13, 185);
 }
 
-/* ================= DESKTOP ================= */
-
-/* ================= MOBILE ================= */
-
-@media(max-width:900px){
-
-.closeBtn{
-    display:block;
-}
-}
-
-
-
-/* ================= MOBILE ================= */
-
-@media(max-width:900px){
-
-.sidebar{
-    width:250px;
-}
-
-.main{
-    margin-left:0;
-}
-
-.container{
-    grid-template-columns:1fr;
-}
-
-#msg,
-.viewBox{
-    grid-column:span 1;
-}
-}
 /* ================= SIDEBAR TOP ================= */
 
 .sideTop{
@@ -286,27 +255,75 @@ button:hover{
 .closeBtn:hover{
     background:darkred;
 }
-/* ================= CENTER ACTIVE FORM ================= */
 
-.container{
+/* ================= MOBILE ================= */
+
+@media(max-width:900px){
+
+.sidebar{
+    width:250px;
+}
+
+.main{
+    margin-left:0;
+}
+
+.content{
+    padding:12px;
+}
+
+}
+.viewButtons{
     display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:60vh;
+    gap:10px;
+    overflow-x:auto;
+    padding:10px 0;
 }
 
-/* make inactive boxes fully hidden */
-.box{
-    display:none;
+.viewButtons button{
+    min-width:120px;
+    white-space:nowrap;
+    border:none;
+    background:#2563eb;
+    color:white;
+    padding:10px;
+    border-radius:10px;
+    cursor:pointer;
+}
+.tableBox{
+    background:white;
+    border-radius:12px;
+    box-shadow:0 0 10px rgba(0,0,0,0.08);
+    overflow-x:auto;
+    margin-bottom:15px;
+}
+
+.tableHeader{
+    background:#2563eb;
+    color:white;
+    padding:12px;
+    font-weight:bold;
+}
+
+table{
     width:100%;
-    max-width:500px;
+    border-collapse:collapse;
+    min-width:600px;
 }
 
-/* active box centered */
-.activeBox{
-    display:block;
+th{
+    background:#1d4ed8;
+    color:white;
+    padding:10px;
+    text-align:left;
+    font-size:14px;
 }
 
+td{
+    padding:10px;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
 </style>
 </head>
 
@@ -399,7 +416,7 @@ button:hover{
     <p id="schoolMottoTop"></p>
 </div>
 
-<h2>👨‍💼 ADMIN DASHBOARD (FULL SYSTEM)</h2>
+<h2>👨‍💼 ADMIN DASHBOARD </h2>
 
 <div class="container">
 
@@ -421,7 +438,16 @@ button:hover{
 <h3>🎓 Add Student</h3>
 
 <input id="sname" placeholder="Full Name">
+
 <input id="sdob" type="date">
+
+<!-- 🔥 NEW DAY DROPDOWN -->
+<select id="sday">
+<option value="">Select Day</option>
+<option value="Day">Day</option>
+<option value="Boarding">Open</option>
+</select>
+
 <input id="sparent" placeholder="Parent Name">
 <input id="sphone" placeholder="Parent Phone">
 
@@ -559,14 +585,17 @@ button:hover{
 <div class="box" id="viewBox1">
 <h3>📊 View Data</h3>
 
+<div class="viewButtons">
+
 <button onclick="viewTeachers()">All Teachers</button>
 <button onclick="viewForm('Form1')">Form 1</button>
 <button onclick="viewForm('Form2')">Form 2</button>
 <button onclick="viewForm('Form3')">Form 3</button>
 <button onclick="viewForm('Form4')">Form 4</button>
 <button onclick="viewPrefects()">Prefects</button>
-</div>
 
+</div>
+</div>
 <!-- EXAMS -->
 <div class="box" id="examBox">
 <h3>📝 Exam Release Control</h3>
@@ -586,13 +615,13 @@ will see their results on the student dashboard.
 </p>
 </div>
 
+</div>
+
 <p id="msg"></p>
 
 <div class="viewBox">
 <h3>📌 Output</h3>
 <div id="output"></div>
-</div>
-
 </div>
 
 </div>
@@ -630,28 +659,18 @@ const db = getFirestore(app);
 const get = (id) => document.getElementById(id);
 
 function show(text,color="green"){
-document.getElementById("msg").innerText = text;
-document.getElementById("msg").style.color = color;
+get("msg").innerText = text;
+get("msg").style.color = color;
 }
 
-/* ================= TOGGLE SIDEBAR ================= */
-
-/* ================= OPEN SIDEBAR ================= */
+/* ================= SIDEBAR ================= */
 
 window.toggleSidebar = ()=>{
-
-document.getElementById("sidebar")
-.classList.add("active");
-
+get("sidebar").classList.add("active");
 }
 
-/* ================= CLOSE SIDEBAR ================= */
-
 window.closeSidebar = ()=>{
-
-document.getElementById("sidebar")
-.classList.remove("active");
-
+get("sidebar").classList.remove("active");
 }
 
 /* ================= SHOW SECTION ================= */
@@ -662,11 +681,10 @@ document.querySelectorAll(".box").forEach(box=>{
 box.classList.remove("activeBox");
 });
 
-document.getElementById(id).classList.add("activeBox");
+get(id).classList.add("activeBox");
 
 if(window.innerWidth <= 900){
-document.querySelector(".sidebar")
-.classList.remove("active");
+get("sidebar").classList.remove("active");
 }
 }
 
@@ -674,7 +692,7 @@ document.querySelector(".sidebar")
 
 window.toggleProfile = ()=>{
 
-let menu = document.getElementById("profileMenu");
+let menu = get("profileMenu");
 
 if(menu.style.display==="block"){
 menu.style.display="none";
@@ -698,7 +716,7 @@ try{
 
 let snap = await getDocs(collection(db,"teachers"));
 
-let select = document.getElementById("at_teacher");
+let select = get("at_teacher");
 
 select.innerHTML =
 "<option value=''>Select Teacher</option>";
@@ -773,14 +791,14 @@ if(snap.exists()){
 
 let d = snap.data();
 
-document.getElementById("schoolNameTop").innerText =
+get("schoolNameTop").innerText =
 d.name || "School Name";
 
-document.getElementById("schoolMottoTop").innerText =
+get("schoolMottoTop").innerText =
 d.motto || "School Motto";
 
 if(d.logo){
-document.getElementById("schoolLogo").src = d.logo;
+get("schoolLogo").src = d.logo;
 }
 }
 }
@@ -806,15 +824,28 @@ show("School settings saved ✔");
 
 window.addStudent = async ()=>{
 
-await setDoc(doc(db,"students",sreg.value),{
+if(
+!get("sname").value ||
+!get("sreg").value ||
+!get("spass").value
+){
+show("Please fill all student fields","red");
+return;
+}
 
-full_name:sname.value,
-reg_no:sreg.value,
-password:spass.value,
-form:sclass.value,
-dob:sdob.value,
-parent_name:sparent.value,
-parent_phone:sphone.value,
+await setDoc(doc(db,"students",get("sreg").value),{
+
+full_name:get("sname").value,
+reg_no:get("sreg").value,
+password:get("spass").value,
+form:get("sclass").value,
+dob:get("sdob").value,
+
+/* 🔥 NEW DAY FIELD */
+section:get("sday").value,
+
+parent_name:get("sparent").value,
+parent_phone:get("sphone").value,
 
 fees_balance:0,
 fees_validated:true
@@ -822,21 +853,31 @@ fees_validated:true
 });
 
 show("Student added ✔");
+
+/* CLEAR */
+get("sname").value="";
+get("sdob").value="";
+get("sday").value="";
+get("sparent").value="";
+get("sphone").value="";
+get("sreg").value="";
+get("spass").value="";
 }
 
 /* ================= TEACHER ================= */
 
 window.addTeacher = async ()=>{
 
-await setDoc(doc(db,"teachers",tuser.value),{
-full_name:tname.value,
-username:tuser.value,
-password:tpass.value,
-department:tdept.value,
+await setDoc(doc(db,"teachers",get("tuser").value),{
+full_name:get("tname").value,
+username:get("tuser").value,
+password:get("tpass").value,
+department:get("tdept").value,
 role:"teacher"
 });
 
 show("Teacher added ✔");
+
 
 loadTeachersDropdown();
 }
@@ -846,54 +887,59 @@ loadTeachersDropdown();
 window.addSubject = async ()=>{
 
 await addDoc(collection(db,"subjects"),{
-name:subject.value,
-department:sdept.value
+name:get("subject").value,
+department:get("sdept").value
 });
 
 show("Subject added ✔");
+
 }
 
 /* ================= ACCOUNTANT ================= */
 
 window.addAccountant = async ()=>{
 
-await setDoc(doc(db,"accountants",auser.value),{
-full_name:aname.value,
-username:auser.value,
-password:apass.value,
+await setDoc(doc(db,"accountants",get("auser").value),{
+full_name:get("aname").value,
+username:get("auser").value,
+password:get("apass").value,
 role:"accountant"
 });
 
+
 show("Accountant added ✔");
+
 }
 
 /* ================= ADMIN ================= */
 
 window.addAdmin = async ()=>{
 
-await setDoc(doc(db,"admins",admin_user.value),{
-full_name:admin_name.value,
-username:admin_user.value,
-password:admin_pass.value,
+await setDoc(doc(db,"admins",get("admin_user").value),{
+full_name:get("admin_name").value,
+username:get("admin_user").value,
+password:get("admin_pass").value,
 role:"admin"
 });
 
 show("Admin added ✔");
+
 }
 
 /* ================= OFFICER ================= */
 
 window.addOfficer = async ()=>{
 
-await setDoc(doc(db,"officers",off_user.value),{
-full_name:off_name.value,
-username:off_user.value,
-password:off_pass.value,
-role:off_role.value,
-department:off_dept.value
+await setDoc(doc(db,"officers",get("off_user").value),{
+full_name:get("off_name").value,
+username:get("off_user").value,
+password:get("off_pass").value,
+role:get("off_role").value,
+department:get("off_dept").value
 });
 
 show("Officer added ✔");
+
 }
 
 /* ================= PREFECT ================= */
@@ -901,12 +947,13 @@ show("Officer added ✔");
 window.addPrefect = async ()=>{
 
 await addDoc(collection(db,"prefects"),{
-name:pname.value,
-class:pclass.value,
-role:prole.value
+name:get("pname").value,
+class:get("pclass").value,
+role:get("prole").value
 });
 
 show("Prefect added ✔");
+
 }
 
 /* ================= ASSIGN ================= */
@@ -914,12 +961,13 @@ show("Prefect added ✔");
 window.assignTeacher = async ()=>{
 
 await addDoc(collection(db,"teacher_assignments"),{
-teacher_username:at_teacher.value,
-subject:at_subject.value,
-form:at_class.value
+teacher_username:get("at_teacher").value,
+subject:get("at_subject").value,
+form:get("at_class").value
 });
 
 show("Assigned ✔");
+
 }
 
 /* ================= RELEASE RESULTS ================= */
@@ -929,11 +977,12 @@ window.saveExamRelease = async ()=>{
 await setDoc(doc(db,"settings","exam_control"),{
 
 released:
-document.getElementById("examRelease").value === "true"
+get("examRelease").value === "true"
 
 });
 
 show("Exam release updated ✔");
+
 }
 
 /* ================= VIEW TEACHERS ================= */
@@ -942,73 +991,139 @@ window.viewTeachers = async ()=>{
 
 let snap = await getDocs(collection(db,"teachers"));
 
-let out="";
+let out = `
+<div class="tableBox">
+<div class="tableHeader">🧑‍🏫 TEACHERS LIST</div>
+
+<table>
+<thead>
+<tr>
+<th>Full Name</th>
+<th>Username</th>
+<th>Department</th>
+</tr>
+</thead>
+<tbody>
+`;
 
 snap.forEach(d=>{
 
-let x=d.data();
+let x = d.data();
 
 out += `
-<div style="padding:10px;border-bottom:1px solid #ddd;">
-<b>${x.full_name}</b><br>
-Department: ${x.department}
-</div>
+<tr>
+<td>${x.full_name}</td>
+<td>${x.username}</td>
+<td>${x.department}</td>
+</tr>
 `;
 });
 
-output.innerHTML=out;
-}
+out += "</tbody></table></div>";
 
+output.innerHTML = out;
+};
 /* ================= VIEW FORM ================= */
 
 window.viewForm = async (form)=>{
 
-let q=query(
+let selectedSection = prompt("Section (Day / Open) or leave empty");
+
+let q;
+
+if(selectedSection){
+
+q = query(
+collection(db,"students"),
+where("form","==",form),
+where("section","==",selectedSection)
+);
+
+}else{
+
+q = query(
 collection(db,"students"),
 where("form","==",form)
 );
 
-let snap=await getDocs(q);
+}
 
-let out="";
+let snap = await getDocs(q);
+
+let out = `
+<div class="tableBox">
+<div class="tableHeader">🎓 STUDENTS - ${form}</div>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Reg No</th>
+<th>Section</th>
+<th>Parent Phone</th>
+</tr>
+</thead>
+<tbody>
+`;
 
 snap.forEach(d=>{
 
-let x=d.data();
+let x = d.data();
 
 out += `
-<div style="padding:10px;border-bottom:1px solid #ddd;">
-<b>${x.full_name}</b><br>
-${x.reg_no}
-</div>
+<tr>
+<td>${x.full_name}</td>
+<td>${x.reg_no}</td>
+<td>${x.section || "-"}</td>
+<td>${x.parent_phone || "-"}</td>
+</tr>
 `;
 });
 
-output.innerHTML=out;
-}
+out += "</tbody></table></div>";
+
+output.innerHTML = out;
+};
 
 /* ================= VIEW PREFECTS ================= */
 
 window.viewPrefects = async ()=>{
 
-let snap=await getDocs(collection(db,"prefects"));
+let snap = await getDocs(collection(db,"prefects"));
 
-let out="";
+let out = `
+<div class="tableBox">
+<div class="tableHeader">🏫 PREFECTS LIST</div>
+
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Class</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+`;
 
 snap.forEach(d=>{
 
-let x=d.data();
+let x = d.data();
 
 out += `
-<div style="padding:10px;border-bottom:1px solid #ddd;">
-<b>${x.name}</b><br>
-${x.class} - ${x.role}
-</div>
+<tr>
+<td>${x.name}</td>
+<td>${x.class}</td>
+<td>${x.role}</td>
+</tr>
 `;
 });
 
-output.innerHTML=out;
-}
+out += "</tbody></table></div>";
+
+output.innerHTML = out;
+};
+
 
 </script>
 
