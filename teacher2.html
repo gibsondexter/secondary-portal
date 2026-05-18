@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html>
 <head>
 
 <title>Teacher Dashboard</title>
@@ -25,15 +27,11 @@ body{
     color:#111827;
 }
 
-/* MAIN CONTAINER */
-
 .container{
     width:100%;
-    max-width:500px;
+    max-width:550px;
     margin:auto;
 }
-
-/* BOXES */
 
 .box{
     width:100%;
@@ -43,8 +41,6 @@ body{
     border-radius:18px;
     box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
-
-/* HEADINGS */
 
 h2{
     text-align:center;
@@ -59,16 +55,12 @@ h3{
     font-size:17px;
 }
 
-/* INFO */
-
 #info{
     text-align:center;
     font-size:14px;
     color:#374151;
     line-height:1.6;
 }
-
-/* INPUTS */
 
 input,
 select{
@@ -82,8 +74,6 @@ select{
     outline:none;
 }
 
-/* BUTTON */
-
 button{
     width:100%;
     padding:14px;
@@ -96,7 +86,9 @@ button{
     cursor:pointer;
 }
 
-/* TABLE FIX */
+button:hover{
+    background:#15803d;
+}
 
 .table-wrap{
     width:100%;
@@ -125,8 +117,6 @@ td{
     word-break:break-word;
 }
 
-/* RESULTS */
-
 #results p{
     background:#f3f4f6;
     padding:10px;
@@ -136,13 +126,18 @@ td{
     word-break:break-word;
 }
 
-/* MESSAGE */
-
 #msg{
     margin-top:10px;
     text-align:center;
     font-weight:bold;
     font-size:14px;
+}
+
+.footer{
+    text-align:center;
+    margin-top:20px;
+    color:#6b7280;
+    font-size:13px;
 }
 
 </style>
@@ -153,192 +148,458 @@ td{
 
 <div class="container">
 
+<!-- TEACHER INFO -->
 <div class="box">
+
     <h2>👨‍🏫 Teacher Dashboard</h2>
-    <div id="info">Loading teacher...</div>
+
+    <div id="info">
+        Loading teacher...
+    </div>
+
 </div>
 
-<!-- NEW: TERM + CLASS + SUBJECT -->
+<!-- SETTINGS -->
 <div class="box">
-    <h3>⚙️ Select Term, Class & Subject</h3>
 
-    <!-- 🔥 NEW TERM SELECT -->
+    <h3>⚙️ Academic Settings</h3>
+
+    <!-- YEAR -->
+    <select id="academicYear">
+        <option value="">Loading Academic Year...</option>
+    </select>
+
+    <!-- TERM -->
     <select id="termSelect">
+
         <option value="">Select Term</option>
+
         <option value="Term 1">Term 1</option>
         <option value="Term 2">Term 2</option>
         <option value="Term 3">Term 3</option>
+
     </select>
 
+    <!-- CLASS -->
     <select id="classSelect" onchange="loadStudents()">
+
         <option value="">Select Class</option>
+
         <option>Form1</option>
         <option>Form2</option>
         <option>Form3</option>
         <option>Form4</option>
+
     </select>
 
-    <select id="subjectSelect">
-        <option value="">Select Subject</option>
+    <!-- SECTION -->
+    <select id="sectionSelect" onchange="loadStudents()">
+
+        <option value="">Select Section</option>
+
+        <option value="Day">DAY</option>
+        <option value="Boarding">OPEN</option>
+
     </select>
+
+    <!-- SUBJECT -->
+    <select id="subjectSelect">
+
+        <option value="">Select Subject</option>
+
+    </select>
+
 </div>
 
+<!-- STUDENTS -->
 <div class="box">
+
     <h3>📋 Students</h3>
+
+    <div class="table-wrap">
+
     <table>
+
         <thead>
+
             <tr>
                 <th>Name</th>
                 <th>Reg No</th>
+                <th>Section</th>
             </tr>
+
         </thead>
+
         <tbody id="students"></tbody>
+
     </table>
+
+    </div>
+
 </div>
 
+<!-- MARKS -->
 <div class="box">
+
     <h3>📝 Enter Marks</h3>
 
-    <select id="student"></select>
-    <input type="number" id="score" placeholder="Enter Score">
+    <select id="student">
 
-    <button onclick="saveMarks()">Save Marks</button>
+        <option value="">
+        Select Student
+        </option>
+
+    </select>
+
+    <input
+    type="number"
+    id="score"
+    placeholder="Enter Score">
+
+    <button onclick="saveMarks()">
+
+        Save Marks
+
+    </button>
 
     <p id="msg"></p>
+
 </div>
 
+<!-- RESULTS -->
 <div class="box">
+
     <h3>📊 Recent Results</h3>
+
     <div id="results"></div>
+
+</div>
+
+<div class="footer">
+Developed By Dexter Gibson
 </div>
 
 </div>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { initializeApp }
+
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
 import {
-    getFirestore,
-    collection,
-    query,
-    where,
-    getDocs,
-    addDoc,
-    doc,
-    getDoc
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+getFirestore,
+collection,
+query,
+where,
+getDocs,
+addDoc,
+doc,
+getDoc
+
+}
+
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+/* ================= FIREBASE ================= */
 
 const firebaseConfig = {
+
     apiKey: "YOUR_KEY",
+
     authDomain: "secondary-dexter-system.firebaseapp.com",
+
     projectId: "secondary-dexter-system",
+
+    storageBucket: "secondary-dexter-system.appspot.com",
+
+    messagingSenderId: "858654232789",
+
+    appId: "1:858654232789:web:d8b374c700c6a135fd525c"
+
 };
 
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 /* ================= VARIABLES ================= */
-let teacher_id = localStorage.getItem("teacher_id");
+
+let teacher_id =
+localStorage.getItem("teacher_id");
 
 let teacherName = "";
-let assignments = [];
+
+/* ================= LOAD YEAR ================= */
+
+async function loadAcademicYear(){
+
+    try{
+
+        let snap =
+        await getDoc(doc(db,"settings","school"));
+
+        let select =
+        document.getElementById("academicYear");
+
+        if(snap.exists()){
+
+            let data = snap.data();
+
+            let year =
+            data.academic_year || "2026/2027";
+
+            select.innerHTML = `
+            <option value="${year}">
+            ${year}
+            </option>
+            `;
+
+        }else{
+
+            select.innerHTML = `
+            <option value="2026/2027">
+            2026/2027
+            </option>
+            `;
+
+        }
+
+    }catch(err){
+
+        console.log(err);
+
+    }
+
+}
 
 /* ================= LOAD TEACHER ================= */
+
 async function loadTeacher(){
 
     if(!teacher_id){
-        document.getElementById("info").innerText = "No teacher logged in";
+
+        document.getElementById("info")
+        .innerText = "No teacher logged in";
+
         return;
+
     }
 
-    const snap = await getDoc(doc(db,"teachers", teacher_id));
+    const snap =
+    await getDoc(doc(db,"teachers",teacher_id));
 
     if(!snap.exists()){
-        document.getElementById("info").innerText = "Teacher not found";
+
+        document.getElementById("info")
+        .innerText = "Teacher not found";
+
         return;
+
     }
 
     let d = snap.data();
+
     teacherName = d.full_name;
 
     document.getElementById("info").innerHTML = `
-        <b>Teacher:</b> ${teacherName}
+
+    <b>Teacher:</b> ${teacherName}<br>
+
+    <b>Department:</b> ${d.department || "-"}
+
     `;
 
     loadAssignments();
+
 }
 
-/* ================= LOAD ASSIGNMENTS ================= */
+/* ================= LOAD SUBJECTS ================= */
+
 async function loadAssignments(){
 
-    let q = query(collection(db,"teacher_assignments"),
-                  where("teacher_username","==",teacher_id));
+    let q = query(
+
+        collection(db,"teacher_assignments"),
+
+        where("teacher_username","==",teacher_id)
+
+    );
 
     let snap = await getDocs(q);
 
-    let subjectSelect = document.getElementById("subjectSelect");
-    subjectSelect.innerHTML = `<option value="">Select Subject</option>`;
+    let subjectSelect =
+    document.getElementById("subjectSelect");
 
-    assignments = [];
+    subjectSelect.innerHTML =
+    `<option value="">Select Subject</option>`;
 
     snap.forEach(docu=>{
+
         let d = docu.data();
 
-        assignments.push(d);
+        let option =
+        document.createElement("option");
 
-        let option = document.createElement("option");
         option.value = d.subject;
-        option.textContent = d.subject + " (" + d.form + ")";
+
+        option.textContent =
+        d.subject + " (" + d.form + ")";
+
         subjectSelect.appendChild(option);
+
     });
+
 }
 
 /* ================= LOAD STUDENTS ================= */
+
 window.loadStudents = async function(){
 
-    let selectedClass = document.getElementById("classSelect").value;
+    let selectedClass =
+    document.getElementById("classSelect").value;
 
-    if(!selectedClass){
-        document.getElementById("students").innerHTML = "";
+    let selectedSection =
+    document.getElementById("sectionSelect").value;
+
+    if(!selectedClass || !selectedSection){
+
+        document.getElementById("students")
+        .innerHTML = "";
+
+        document.getElementById("student")
+        .innerHTML = `
+        <option value="">
+        Select Student
+        </option>
+        `;
+
         return;
+
     }
 
-    let q = query(collection(db,"students"),
-                  where("form","==",selectedClass));
+    let q = query(
+
+        collection(db,"students"),
+
+        where("form","==",selectedClass),
+
+        where("section","==",selectedSection)
+
+    );
 
     let snap = await getDocs(q);
 
     let rows = "";
-    let options = "";
+
+    let options =
+    `<option value="">Select Student</option>`;
 
     snap.forEach(docu => {
+
         let d = docu.data();
 
         rows += `
-        <tr>
-            <td>${d.full_name}</td>
-            <td>${d.reg_no}</td>
-        </tr>`;
 
-        options += `<option value="${d.reg_no}">${d.full_name}</option>`;
+        <tr>
+
+            <td>${d.full_name}</td>
+
+            <td>${d.reg_no}</td>
+
+            <td>${d.section || "-"}</td>
+
+        </tr>
+
+        `;
+
+        options += `
+
+        <option value="${d.reg_no}">
+
+        ${d.full_name}
+
+        </option>
+
+        `;
+
     });
 
-    document.getElementById("students").innerHTML = rows;
-    document.getElementById("student").innerHTML = options;
+    if(rows === ""){
+
+        rows = `
+        <tr>
+        <td colspan="3">
+        No students found
+        </td>
+        </tr>
+        `;
+
+    }
+
+    document.getElementById("students")
+    .innerHTML = rows;
+
+    document.getElementById("student")
+    .innerHTML = options;
+
 }
 
-/* ================= SAVE MARKS (UPDATED WITH TERM) ================= */
+/* ================= SAVE MARKS ================= */
+
 window.saveMarks = async function(){
 
-    let reg_no = document.getElementById("student").value;
-    let score = Number(document.getElementById("score").value);
-    let subject = document.getElementById("subjectSelect").value;
-    let class_id = document.getElementById("classSelect").value;
-    let term = document.getElementById("termSelect").value; // 🔥 NEW
+    let reg_no =
+    document.getElementById("student").value;
 
-    if(!reg_no || !subject || !class_id || !term){
-        show("❌ Please select term, class, subject and student", "red");
+    let score =
+    Number(document.getElementById("score").value);
+
+    let subject =
+    document.getElementById("subjectSelect").value;
+
+    let class_id =
+    document.getElementById("classSelect").value;
+
+    let section =
+    document.getElementById("sectionSelect").value;
+
+    let term =
+    document.getElementById("termSelect").value;
+
+    let academic_year =
+    document.getElementById("academicYear").value;
+
+    if(
+
+        !reg_no ||
+        !subject ||
+        !class_id ||
+        !section ||
+        !term ||
+        !academic_year
+
+    ){
+
+        show(
+        "❌ Please complete all fields",
+        "red"
+        );
+
         return;
+
+    }
+
+    if(score < 0 || score > 100){
+
+        show(
+        "❌ Score must be between 0 and 100",
+        "red"
+        );
+
+        return;
+
     }
 
     show("⏳ Saving...", "orange");
@@ -352,47 +613,122 @@ window.saveMarks = async function(){
     else grade = "F";
 
     await addDoc(collection(db,"assessments"),{
+
         reg_no,
         subject,
         score,
         grade,
+
         teacher: teacherName,
+
         form: class_id,
-        term: term   // 🔥 NEW STORED TERM
+
+        section: section,
+
+        term: term,
+
+        academic_year: academic_year,
+
+        created_at: new Date().toISOString()
+
     });
 
     show("✅ Marks saved successfully");
+
+    document.getElementById("score").value = "";
+
+    loadResults();
+
 }
 
-/* ================= RESULTS ================= */
+/* ================= LOAD RESULTS ================= */
+
 async function loadResults(){
 
-    let q = query(collection(db,"assessments"),
-                  where("teacher","==",teacherName));
+    if(!teacherName) return;
+
+    let q = query(
+
+        collection(db,"assessments"),
+
+        where("teacher","==",teacherName)
+
+    );
 
     let snap = await getDocs(q);
 
     let out = "";
 
     snap.forEach(docu => {
+
         let d = docu.data();
-        out += `<p>${d.reg_no} → ${d.subject} → ${d.score} → ${d.grade} → ${d.term || "No Term"}</p>`;
+
+        out += `
+
+        <p>
+
+        <b>${d.reg_no}</b><br>
+
+        ${d.subject}
+        →
+        ${d.score}
+        (${d.grade})
+
+        <br>
+
+        ${d.form}
+        |
+        ${d.section || "-"}
+
+        <br>
+
+        ${d.term}
+        |
+        ${d.academic_year}
+
+        </p>
+
+        `;
+
     });
 
-    document.getElementById("results").innerHTML = out;
+    if(out === ""){
+
+        out = `
+        <p>No results entered yet</p>
+        `;
+
+    }
+
+    document.getElementById("results")
+    .innerHTML = out;
+
 }
 
 /* ================= MESSAGE ================= */
+
 function show(text,color="green"){
-    let msg = document.getElementById("msg");
+
+    let msg =
+    document.getElementById("msg");
+
     msg.innerText = text;
+
     msg.style.color = color;
+
 }
 
-/* INIT */
-loadTeacher().then(()=>{
-    loadResults();
-});
+/* ================= INIT ================= */
+
+(async ()=>{
+
+    await loadAcademicYear();
+
+    await loadTeacher();
+
+    await loadResults();
+
+})();
 
 </script>
 
